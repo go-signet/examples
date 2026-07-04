@@ -1,0 +1,8 @@
+github.com/appleboy/go-httpretry v0.13.0 h1:8m1Q+Kkutr5v1AZVR00HkSHXvNZEJ84RXUryqvd/6MM=
+github.com/appleboy/go-httpretry v0.13.0/go.mod h1:M0EZ/bwBWvCo5eRjQBb+/CRNjYqBcZDcL252FqxiYR8=
+github.com/go-signet/sdk-go v1.0.0 h1:w1EbY3x0nwHkVCqEMVBSoNXExVKj/OBnZi3GThXGy3A=
+github.com/go-signet/sdk-go v1.0.0/go.mod h1:bmi7nDAu7o6MQnUE3K7ZNEKU4xqh3u/SMbPC5GanOR8=
+github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
+github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
+golang.org/x/sync v0.21.0 h1:HLII4xRRTtCRkxYp4HNFF0Js/Og6q2i++KXbg0gHCwM=
+golang.org/x/sync v0.21.0/go.mod h1:9xrNwdLfx4jkKbNva9FpL6vEN7evnE43NNNJQ2LF3+0=

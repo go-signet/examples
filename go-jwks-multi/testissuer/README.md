@@ -1,0 +1,155 @@
+# testissuer — local fake Signets for `go-jwks-multi`
+
+Spins up two HTTP issuers that **sign your test tokens locally** so you can exercise the resource server's multi-issuer + multi-domain code paths (happy path, cross-domain defense, route policy reject) without standing up real Signets.
+
+> ⚠️ This server signs **anything** you ask for. It's a test tool — bind it to localhost only, never expose it.
+
+## What you get
+
+| Issuer | URL                     | Default allowed domains |
+| ------ | ----------------------- | ----------------------- |
+| auth-a | `http://127.0.0.1:9001` | `oa`, `hwrd`            |
+| auth-b | `http://127.0.0.1:9002` | `swrd`, `cdomain`       |
+
+Each issuer:
+
+- Generates an **ephemeral RSA-2048 keypair** at startup (restart → new `kid`, old tokens stop verifying — matches real key-rotation semantics).
+- Serves `GET /.well-known/openid-configuration` (so the resource server can auto-discover).
+- Serves `GET /jwks.json` (so the resource server can cache the public key).
+- Exposes `GET /sign` to mint a JWT signed by THIS issuer's key.
+
+## Run
+
+```bash
+# Terminal 1 — start the test issuers
+cd go-jwks-multi
+go run ./testissuer
+```
+
+The startup banner prints a copy-paste-ready env block:
+
+```txt
+─── resource server env (copy-paste) ──────────────────────────
+TRUSTED_ISSUERS=http://127.0.0.1:9001,http://127.0.0.1:9002
+EXPECTED_AUDIENCE=https://api.example.com
+ISSUER_DOMAINS='http://127.0.0.1:9001=oa,hwrd;http://127.0.0.1:9002=swrd,cdomain'
+───────────────────────────────────────────────────────────────
+```
+
+```bash
+# Terminal 2 — start the resource server with that env
+cd go-jwks-multi
+TRUSTED_ISSUERS=http://127.0.0.1:9001,http://127.0.0.1:9002 \
+EXPECTED_AUDIENCE=https://api.example.com \
+ISSUER_DOMAINS='http://127.0.0.1:9001=oa,hwrd;http://127.0.0.1:9002=swrd,cdomain' \
+go run .
+```
+
+## `/sign` query parameters
+
+| Param       | Default                   | Notes                                                                                                                                                     |
+| ----------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `aud`       | `https://api.example.com` | Sets the `aud` claim                                                                                                                                      |
+| `sub`       | `test-user-1`             | Sets the `sub` claim                                                                                                                                      |
+| `scope`     | `email profile`           | Space-separated; URL-encode space as `+`                                                                                                                  |
+| `client_id` | `test-client`             | Sets the `client_id` claim                                                                                                                                |
+| `domain`    | (omitted)                 | Mints `<prefix>_domain` (default `extra_domain`) — omit to test fail-closed behavior                                                                      |
+| `sa`        | (omitted)                 | Mints `<prefix>_service_account` (default `extra_service_account`) — omit to test fail-closed                                                             |
+| `project`   | (omitted)                 | Mints `<prefix>_project` (default `extra_project`) — omit to test fail-closed                                                                             |
+| `uid`       | (omitted)                 | Mints `<prefix>_uid` (default `extra_uid`) — the username for user-bearing tokens; surfaced in `/api/profile` and `/api/admin` (no `AccessRule` gates it) |
+| `ttl`       | `300` (seconds)           | `exp` is `iat + ttl`                                                                                                                                      |
+
+`iss` is implicit — it's whichever port you call (`http://127.0.0.1:9001` for auth-a, `9002` for auth-b).
+
+`<prefix>` is set process-wide via the `JWT_PRIVATE_CLAIM_PREFIX` env
+var (default `extra`); the resource server in `../main.go` must run with
+the same value, otherwise its decoder lands these keys in
+`Claims.Extras` instead of the typed fields and every `AccessRule`
+covering `Domain` / `ServiceAccount` / `Project` fails closed. The
+testissuer's startup banner echoes the resolved prefix so you can spot
+mismatches at a glance.
+
+The testissuer also reads a `.env` file from its working directory at
+startup. Running `go run ./testissuer` from `go-jwks-multi/` therefore
+shares the parent `go-jwks-multi/.env` with the resource server, so a
+single `JWT_PRIVATE_CLAIM_PREFIX=acme` line keeps both ends in lock-step
+without exporting it on every shell.
+
+## Test scenarios
+
+### Happy path — auth-a domain `oa`
+
+```bash
+TOK=$(curl -s 'http://127.0.0.1:9001/sign?domain=oa&sa=sync-bot@oa.local&project=admin-tools&scope=email+profile')
+curl -i -H "Authorization: Bearer $TOK" http://localhost:8089/api/profile
+# → 200; response shows issuer=auth-a, domain=oa, all claims populated
+```
+
+### Cross-domain attack — auth-a tries to sign for `swrd`
+
+```bash
+TOK=$(curl -s 'http://127.0.0.1:9001/sign?domain=swrd')
+curl -i -H "Authorization: Bearer $TOK" http://localhost:8089/api/profile
+# → 401; resource server log: "token verification failed: issuer not permitted for this domain: iss=...:9001 domain=\"swrd\" allowed=[oa hwrd]"
+```
+
+### Route policy reject — `/api/data` only allows `oa`, `hwrd`
+
+```bash
+TOK=$(curl -s 'http://127.0.0.1:9002/sign?domain=swrd&scope=email')   # legitimate auth-b token
+curl -i -H "Authorization: Bearer $TOK" http://localhost:8089/api/data
+# → 401 "token not authorized for this resource"
+# → resource server log: "policy reject: domain=\"swrd\" not in allowlist"
+```
+
+### Insufficient scope — `/api/data` requires `email`
+
+```bash
+TOK=$(curl -s 'http://127.0.0.1:9001/sign?domain=oa&scope=profile')   # email scope missing
+curl -i -H "Authorization: Bearer $TOK" http://localhost:8089/api/data
+# → 403; WWW-Authenticate: ... error="insufficient_scope", scope="email"
+```
+
+### Missing required custom claim (fail-closed)
+
+```bash
+TOK=$(curl -s 'http://127.0.0.1:9001/sign?domain=oa')  # no `sa` or `project`
+curl -i -H "Authorization: Bearer $TOK" http://localhost:8089/api/admin
+# → 401; /api/admin requires sync-bot@oa.local SA + admin-tools project
+```
+
+### Untrusted issuer
+
+```bash
+# Mint a token from the right server but tamper with the prefix on the wire,
+# OR run a third unauthorized issuer on a port not in TRUSTED_ISSUERS.
+# Either way the resource server rejects with 401 + "token verification failed: untrusted issuer: iss=..." in its log.
+```
+
+### Expired token (server doesn't auto-rotate; just request a tiny TTL)
+
+```bash
+TOK=$(curl -s 'http://127.0.0.1:9001/sign?domain=oa&ttl=2')
+sleep 3
+curl -i -H "Authorization: Bearer $TOK" http://localhost:8089/api/profile
+# → 401; resource server log: "token verification failed: ...token is expired..."
+```
+
+## Decoding what you signed
+
+JWTs use base64url encoding (`-`/`_` instead of `+`/`/`) and omit padding, so plain `base64 -d` fails on most tokens. The robust path is the helper bundled with the sibling example, which handles URL-safe alphabet + padding for you:
+
+```bash
+TOK=$(curl -s 'http://127.0.0.1:9001/sign?domain=oa')
+bash ../../go-jwks/get-token.sh --decode "$TOK"
+```
+
+If you need a one-liner without the helper, translate the alphabet and pad manually:
+
+```bash
+PAYLOAD=$(echo "$TOK" | awk -F. '{print $2}' | tr '_-' '/+')
+PAD=$(( (4 - ${#PAYLOAD} % 4) % 4 ))
+printf '%s%*s\n' "$PAYLOAD" "$PAD" '' | tr ' ' '=' | base64 -d | jq .
+```
+
+(BSD `base64` may need `-D` instead of `-d`.)

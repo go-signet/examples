@@ -1,0 +1,88 @@
+// CLI example with auto-detection of browser availability.
+//
+// If a browser is available (local machine), it uses Authorization Code + PKCE.
+// If not (SSH session), it falls back to Device Code flow.
+// Tokens are persisted to OS keyring (with file fallback) for reuse.
+//
+// Usage:
+//
+//	export SIGNET_URL=https://auth.example.com
+//	export CLIENT_ID=your-client-id
+//	go run main.go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/go-signet/sdk-go"
+	"github.com/go-signet/sdk-go/oauth"
+	"github.com/joho/godotenv"
+)
+
+func main() {
+	_ = godotenv.Load()
+
+	signetURL := os.Getenv("SIGNET_URL")
+	clientID := os.Getenv("CLIENT_ID")
+	if signetURL == "" || clientID == "" {
+		log.Fatal("Set SIGNET_URL and CLIENT_ID")
+	}
+
+	ctx := context.Background()
+	client, token, err := signet.New(ctx,
+		signetURL,
+		clientID,
+		signet.WithScopes("profile", "email"),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	printTokenInfo(ctx, client, token)
+}
+
+func maskToken(s string) string {
+	if s == "" {
+		return ""
+	}
+	if len(s) <= 8 {
+		return "****"
+	}
+	return s[:8] + "..."
+}
+
+func printTokenInfo(ctx context.Context, client *oauth.Client, token *oauth.Token) {
+	// UserInfo is best-effort: a transient failure here (5xx, timeout) must
+	// not suppress the token and introspection details this command exists
+	// to print, so report it and keep going rather than returning early.
+	if info, err := client.UserInfo(ctx, token.AccessToken); err != nil {
+		fmt.Printf("UserInfo error: %v\n", err)
+	} else {
+		fmt.Printf("User: %s (%s)\n", info.Name, info.Email)
+		fmt.Printf("Subject: %s\n", info.Sub)
+	}
+
+	fmt.Printf("Access Token: %s\n", maskToken(token.AccessToken))
+	fmt.Printf("Refresh Token: %s\n", maskToken(token.RefreshToken))
+	fmt.Printf("Token Type: %s\n", token.TokenType)
+	fmt.Printf("Expires In: %d\n", token.ExpiresIn)
+	fmt.Printf("Expires At: %s\n", token.ExpiresAt)
+	fmt.Printf("Scope: %s\n", token.Scope)
+	fmt.Printf("ID Token: %s\n", maskToken(token.IDToken))
+
+	// Fetch token info for detailed scope and metadata
+	tokenInfo, err := client.TokenInfoRequest(ctx, token.AccessToken)
+	if err != nil {
+		fmt.Printf("TokenInfo error: %v\n", err)
+		return
+	}
+	fmt.Printf("TokenInfo Active: %v\n", tokenInfo.Active)
+	fmt.Printf("TokenInfo UserID: %s\n", tokenInfo.UserID)
+	fmt.Printf("TokenInfo ClientID: %s\n", tokenInfo.ClientID)
+	fmt.Printf("TokenInfo Scope: %s\n", tokenInfo.Scope)
+	fmt.Printf("TokenInfo SubjectType: %s\n", tokenInfo.SubjectType)
+	fmt.Printf("TokenInfo Issuer: %s\n", tokenInfo.Iss)
+	fmt.Printf("TokenInfo Exp: %d\n", tokenInfo.Exp)
+}

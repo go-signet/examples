@@ -1,0 +1,9 @@
+# Keep the image build context to the Go sources: editing docs or the
+# runtime-mounted kong.yml must not invalidate the build cache.
+*.md
+kong.yml
+docker-compose.yml
+Dockerfile
+.dockerignore
+mcp-signet
+kong-mcp

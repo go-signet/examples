@@ -1,0 +1,48 @@
+# Local-build variant of docker-compose.yml: instead of building the plugin
+# inside Docker (blocked when the network has a TLS-intercepting proxy), it
+# mounts a locally cross-compiled binary into the stock kong:3.9 image.
+#
+#   CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o mcp-signet-linux .
+#   docker-compose -f docker-compose.local.yml up -d
+#
+# (GOARCH=amd64 on Intel Macs / x86_64 Docker VMs.)
+services:
+  kong:
+    image: kong:3.9
+    ports:
+      - "8000:8000" # proxy (MCP traffic enters here)
+    depends_on:
+      - mcp-gitea
+      - mcp-sentry
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      # The admin API is unauthenticated and can replace the whole gateway
+      # config (POST /config) even DB-less, so bind it to the container's
+      # loopback only: unreachable from the sibling MCP upstream containers and
+      # not published to the host. Reach it for debugging via
+      # `docker exec <kong container> curl http://127.0.0.1:8001/...`.
+      KONG_ADMIN_LISTEN: "127.0.0.1:8001"
+
+      # Register the Go plugin and wire the pluginserver to its binary.
+      KONG_PLUGINS: "bundled,mcp-signet"
+      KONG_PLUGINSERVER_NAMES: "mcp-signet"
+      KONG_PLUGINSERVER_MCP_SIGNET_START_CMD: "/usr/local/bin/mcp-signet"
+      KONG_PLUGINSERVER_MCP_SIGNET_QUERY_CMD: "/usr/local/bin/mcp-signet -dump"
+    extra_hosts:
+      # Lets the plugin reach a test issuer running on the macOS host at
+      # host.docker.internal (jwks_uri in kong.local.yml). Native on Docker
+      # Desktop; this line makes it work on colima/plain dockerd too.
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./kong.local.yml:/kong/kong.yml:ro
+      - ./mcp-signet-linux:/usr/local/bin/mcp-signet:ro
+
+  # Stand-in MCP upstreams so routes resolve. Replace with your real MCP servers.
+  mcp-gitea:
+    image: hashicorp/http-echo
+    command: ["-text", "hello from mcp-gitea", "-listen", ":3000"]
+  mcp-sentry:
+    image: hashicorp/http-echo
+    command: ["-text", "hello from mcp-sentry", "-listen", ":3000"]

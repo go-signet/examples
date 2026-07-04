@@ -1,0 +1,60 @@
+# Local hands-on config — wires the plugin to the bundled test issuer
+# (../go-jwks-multi/testissuer) instead of a real Signet, so the whole
+# handshake can be exercised end-to-end on a laptop. Used by
+# docker-compose.local.yml. See HANDS-ON.zh-TW.md.
+#
+# Key trick for the issuer/jwks split:
+#   - issuer: must match the token's `iss` claim byte-for-byte. The test
+#     issuer mints `iss: http://127.0.0.1:9001`, so that's what we compare to.
+#   - jwks_uri: Kong (in the container) fetches keys from here, so it must be
+#     reachable FROM the container — host.docker.internal:9001, not 127.0.0.1.
+#
+# Both routes enforce `aud` (require_audience: true). The test issuer's default
+# aud is https://api.example.com, so every /sign call in HANDS-ON.zh-TW.md
+# passes an explicit aud=http://localhost:8000/<resource_path> — a token minted
+# without it is rejected with 401 invalid_token.
+_format_version: "3.0"
+
+services:
+  - name: mcp-gitea
+    url: http://mcp-gitea:3000
+    routes:
+      - name: mcp-gitea
+        paths:
+          - /mcp/gitea
+          - /.well-known/oauth-protected-resource/mcp/gitea
+        strip_path: true
+    plugins:
+      - name: mcp-signet
+        config:
+          issuer: http://127.0.0.1:9001
+          gateway_origin: http://localhost:8000
+          resource_path: /mcp/gitea
+          jwks_uri: http://host.docker.internal:9001/jwks.json
+          required_scopes:
+            - mcp:gitea
+          # tokens must carry aud == http://localhost:8000/mcp/gitea
+          require_audience: true
+          leeway_seconds: 60
+
+  # Same enforcement; row 5b uses this route to show the cross-resource
+  # 401-vs-200 aud contrast.
+  - name: mcp-sentry
+    url: http://mcp-sentry:3000
+    routes:
+      - name: mcp-sentry
+        paths:
+          - /mcp/sentry
+          - /.well-known/oauth-protected-resource/mcp/sentry
+        strip_path: true
+    plugins:
+      - name: mcp-signet
+        config:
+          issuer: http://127.0.0.1:9001
+          gateway_origin: http://localhost:8000
+          resource_path: /mcp/sentry
+          jwks_uri: http://host.docker.internal:9001/jwks.json
+          required_scopes:
+            - mcp:sentry
+          require_audience: true
+          leeway_seconds: 60
