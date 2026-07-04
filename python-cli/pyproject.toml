@@ -1,0 +1,5 @@
+[project]
+name = "python-cli"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = ["go-signet==1.0.0", "python-dotenv>=1.2.2"]
