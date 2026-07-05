@@ -11,6 +11,7 @@ Multi-language usage examples for Signet authentication (Go, Python, Bash).
 | Example                         | Use Case                 | OAuth Flow                   | Language | Prerequisites    |
 | ------------------------------- | ------------------------ | ---------------------------- | -------- | ---------------- |
 | [go-cli](go-cli/)               | CLI login                | Auth Code+PKCE / Device Code | Go       | Go 1.25+         |
+| [go-tui](go-tui/)               | CLI login (full TUI)     | Auth Code+PKCE / Device Code | Go       | Go 1.25+         |
 | [python-cli](python-cli/)       | CLI login                | Auth Code+PKCE / Device Code | Python   | Python 3.10+, uv |
 | [bash-cli](bash-cli/)           | CLI login (headless)     | Device Code (RFC 8628)       | Bash     | curl, jq         |
 | [go-m2m](go-m2m/)               | Service-to-service       | Client Credentials           | Go       | Go 1.25+         |
@@ -54,6 +55,15 @@ Uses the Signet Go SDK. Tokens are stored in the OS keyring.
 ```bash
 cd go-cli
 go run main.go
+```
+
+### Go TUI CLI
+
+The production-grade counterpart to [go-cli](go-cli/): the same Auth Code + PKCE / Device Code auto-selection, plus an interactive TUI with progress indicators and timers, `token` subcommands (`get` / `inspect` / `decode` / `delete`), caller-supplied extra JWT claims, and an encrypted token cache (AES-256-GCM file with the master key in the OS keyring, file-lock protected). Start with [go-cli](go-cli/) to learn the flow; use [go-tui](go-tui/) as the blueprint when embedding full OAuth authentication into a real CLI tool.
+
+```bash
+cd go-tui
+go run .
 ```
 
 ### Python CLI
@@ -167,5 +177,5 @@ docker compose up --build                   # demo stack: Kong + stub MCP upstre
 
 - **"Cannot connect to SIGNET_URL"** — Verify the URL is correct and the Signet server is running.
 - **"Device code expired"** — Restart the flow; the default timeout is 300 seconds.
-- **Token cache location** — `~/.signet-tokens.json` is shared by bash-cli and Python examples. Go CLI examples use the OS keyring.
+- **Token cache location** — `~/.signet-tokens.json` is shared by bash-cli and Python examples. Go CLI examples use the OS keyring, except [go-tui](go-tui/), which caches tokens to an encrypted file (`.signet-tokens.json.enc`, master key in the OS keyring), falling back to a plaintext file if the keyring is unavailable (configurable via `TOKEN_STORE`).
 - **OS keyring unavailable** — Go and Python CLI examples fall back to file-based cache automatically.

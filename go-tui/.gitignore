@@ -1,0 +1,11 @@
+# env file
+.env
+
+# Encrypted token cache
+.signet-tokens.json
+.signet-tokens.json.*
+
+# Build artifacts
+bin/
+signet-cli
+coverage.txt
