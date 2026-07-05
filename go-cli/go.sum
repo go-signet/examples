@@ -4,8 +4,8 @@ github.com/danieljoos/wincred v1.2.3 h1:v7dZC2x32Ut3nEfRH+vhoZGvN72+dQ/snVXo/vMF
 github.com/danieljoos/wincred v1.2.3/go.mod h1:6qqX0WNrS4RzPZ1tnroDzq9kY3fu1KwE7MRLQK4X0bs=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/go-signet/sdk-go v1.0.0 h1:w1EbY3x0nwHkVCqEMVBSoNXExVKj/OBnZi3GThXGy3A=
-github.com/go-signet/sdk-go v1.0.0/go.mod h1:bmi7nDAu7o6MQnUE3K7ZNEKU4xqh3u/SMbPC5GanOR8=
+github.com/go-signet/sdk-go v1.0.2 h1:Hja0DigiMUjKSqdm861TKIz+YWj+Xve8He/Q8Bv/vcE=
+github.com/go-signet/sdk-go v1.0.2/go.mod h1:bmi7nDAu7o6MQnUE3K7ZNEKU4xqh3u/SMbPC5GanOR8=
 github.com/godbus/dbus/v5 v5.2.2 h1:TUR3TgtSVDmjiXOgAAyaZbYmIeP3DPkld3jgKGV8mXQ=
 github.com/godbus/dbus/v5 v5.2.2/go.mod h1:3AAv2+hPq5rdnr5txxxRwiGjPXamgoIHgz9FPBfOp3c=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
