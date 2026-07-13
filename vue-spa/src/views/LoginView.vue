@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuth } from '../auth/useAuth'
 import { userManager, signetUrl, clientId } from '../auth/userManager'
 
+const router = useRouter()
 const { isAuthenticated, loadUser, login } = useAuth()
 
 const configMissing = !signetUrl || !clientId
@@ -92,9 +94,11 @@ async function onLogin() {
       <button v-if="discoveryError" :disabled="probing" @click="onRetry">
         {{ probing ? 'Retrying…' : 'Retry discovery' }}
       </button>
-      <router-link v-if="isAuthenticated" to="/profile">
-        <button>Go to profile (already signed in)</button>
-      </router-link>
+      <!-- A plain button, not a <button> wrapped in <router-link>: the latter
+           renders <a><button>, which is invalid nested interactive content. -->
+      <button v-if="isAuthenticated" @click="router.push({ name: 'profile' })">
+        Go to profile (already signed in)
+      </button>
     </div>
   </section>
 </template>

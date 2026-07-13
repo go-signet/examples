@@ -43,7 +43,13 @@ export function renew(): Promise<User> {
   // would replay an already-consumed token.
   renewal ??= (async () => {
     const current = await userManager.getUser()
-    if (!current?.refresh_token) {
+    // Two distinct failures: there is no session at all, versus there is one
+    // but Signet issued no refresh token. Conflating them sends the reader
+    // chasing scope configuration when they simply need to sign in.
+    if (!current) {
+      throw new Error('not signed in — sign in again')
+    }
+    if (!current.refresh_token) {
       throw new Error(
         'no refresh token in this session — Signet must issue one for this client ' +
           '(register and request the offline_access scope), otherwise renewal is impossible',

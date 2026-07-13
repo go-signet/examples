@@ -59,51 +59,58 @@ const onCallApi = (path: string) =>
 
 const onLogout = () =>
   run(async () => {
-    try {
-      await logout()
-    } finally {
-      // logout() clears the local session even when revocation fails, so leave
-      // either way — but let run() surface the revocation error.
-      router.replace({ name: 'home' })
-    }
+    // Only navigate on a clean sign-out. logout() throws when revocation
+    // failed, and that message matters — tokens we could not revoke are still
+    // live at Signet — so stay put and let run() render it.
+    await logout()
+    router.replace({ name: 'home' })
   })
 </script>
 
 <template>
-  <section v-if="user">
-    <h1>Profile</h1>
+  <section>
+    <template v-if="user">
+      <h1>Profile</h1>
 
-    <p>
-      Signed in as <strong>{{ user.profile.email ?? user.profile.sub }}</strong>
-      · scopes: <code>{{ user.scopes.join(' ') }}</code>
-      · access token expires: <strong>{{ expiresAt }}</strong>
-    </p>
+      <p>
+        Signed in as <strong>{{ user.profile.email ?? user.profile.sub }}</strong>
+        · scopes: <code>{{ user.scopes.join(' ') }}</code>
+        · access token expires: <strong>{{ expiresAt }}</strong>
+      </p>
 
-    <div class="actions">
-      <button :disabled="busy" @click="onRefresh">Refresh token</button>
-      <button :disabled="busy" @click="onCallApi('/api/profile')">Call API (/api/profile)</button>
-      <button :disabled="busy" @click="onCallApi('/api/data')">Call API (/api/data)</button>
-      <button :disabled="busy" @click="onLogout">Sign out</button>
-    </div>
+      <div class="actions">
+        <button :disabled="busy" @click="onRefresh">Refresh token</button>
+        <button :disabled="busy" @click="onCallApi('/api/profile')">Call API (/api/profile)</button>
+        <button :disabled="busy" @click="onCallApi('/api/data')">Call API (/api/data)</button>
+        <button :disabled="busy" @click="onLogout">Sign out</button>
+      </div>
+    </template>
 
+    <template v-else>
+      <h1>Signed out</h1>
+      <p>
+        The local session is cleared.
+        <router-link to="/">Back to sign-in</router-link>.
+      </p>
+    </template>
+
+    <!-- Outside the v-if: a failed revocation still clears the local session,
+         so `user` is already null by the time that error needs to be read. -->
     <div v-if="actionError" class="error">
       <p>{{ actionError }}</p>
     </div>
 
-    <template v-if="apiResult">
-      <h2>API response</h2>
-      <pre>{{ apiResult }}</pre>
+    <template v-if="user">
+      <template v-if="apiResult">
+        <h2>API response</h2>
+        <pre>{{ apiResult }}</pre>
+      </template>
+
+      <h2>ID token claims</h2>
+      <pre>{{ JSON.stringify(idTokenClaims, null, 2) }}</pre>
+
+      <h2>user.profile (ID token claims + userinfo, merged)</h2>
+      <pre>{{ JSON.stringify(user.profile, null, 2) }}</pre>
     </template>
-
-    <h2>ID token claims</h2>
-    <pre>{{ JSON.stringify(idTokenClaims, null, 2) }}</pre>
-
-    <h2>user.profile (ID token claims + userinfo, merged)</h2>
-    <pre>{{ JSON.stringify(user.profile, null, 2) }}</pre>
-  </section>
-
-  <section v-else>
-    <h1>Not signed in</h1>
-    <p>The session ended. <router-link to="/">Back to sign-in</router-link>.</p>
   </section>
 </template>

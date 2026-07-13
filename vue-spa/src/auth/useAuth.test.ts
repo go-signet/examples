@@ -167,6 +167,15 @@ describe('refresh', () => {
     expect(manager.signinSilent).not.toHaveBeenCalled()
   })
 
+  it('distinguishes "not signed in" from "signed in but no refresh token"', async () => {
+    // Reporting a missing refresh token when there is no session at all would
+    // send the reader off to reconfigure scopes when they just need to log in.
+    manager.getUser.mockResolvedValue(null)
+
+    await expect(useAuth().refresh()).rejects.toThrow(/not signed in/)
+    expect(manager.signinSilent).not.toHaveBeenCalled()
+  })
+
   it('is single-flight, so concurrent callers never replay a rotated refresh token', async () => {
     manager.getUser.mockResolvedValue(signedIn())
     manager.signinSilent.mockResolvedValue(signedIn({ access_token: 'tok-2' }))
