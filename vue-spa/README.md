@@ -41,21 +41,34 @@ Package management and script running use [Bun](https://bun.sh).
 All of this works without a backend because Signet serves `/oauth/*` and
 `/.well-known/*` with CORS headers (when enabled — see below).
 
-### What is *not* verified
+### ⚠️ The ID token is not fully validated
 
 `oidc-client-ts` **does not verify the ID token's signature**, nor its `iss`,
 `aud`, or `exp` claims — its JWT helper is annotated *"doesn't validate the
 token"*, and it never fetches the JWKS. It checks only that `sub` is present
-and that the `nonce` matches. This is a deliberate reading of
-[OIDC Core §3.1.3.7 clause 8](https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation):
-the ID token arrived directly from the token endpoint over TLS, so the channel
-is the guarantee.
+and that the `nonce` matches.
 
-The consequence is worth internalizing before you copy this: the moment an
-`id_token` reaches your app from anywhere other than that direct response, it
-is unvalidated input. [go-oidc](../go-oidc/) does the full check
-(`verifier.Verify` — signature against JWKS, plus `iss`/`aud`/`exp`, plus
-`at_hash`); this example does not, and it does not need to.
+Only part of that is sanctioned by the spec.
+[OIDC Core §3.1.3.7](https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation)
+clause 6 permits TLS server validation to stand in for **the signature check**
+when the ID token came directly from the token endpoint — which it did here.
+But clauses 2, 3, and 9 still say the client **MUST** validate `iss`, `aud`,
+and `exp`, and TLS is not a substitute for those. `oidc-client-ts` does not do
+them, so **this SPA is not a fully conformant OIDC client**. Treat that as a
+limitation of the library, not as a design decision this example made.
+
+Practically: **do not use `id_token` claims for anything security-sensitive.**
+Use them to render a name and an avatar. Do not use them to decide what a user
+is allowed to do — that decision belongs on the server, which must validate the
+access token itself (that is exactly what [go-webservice](../go-webservice/)
+and [go-jwks](../go-jwks/) demonstrate). And the moment an `id_token` reaches
+your app from anywhere other than that direct token-endpoint response, it is
+entirely unvalidated input.
+
+If you need real ID token guarantees in the browser, either verify it yourself
+against the JWKS (`jwks_uri` is in the discovery document) or move the flow
+server-side — [go-oidc](../go-oidc/) does the full check via `verifier.Verify`:
+signature against JWKS, plus `iss` / `aud` / `exp`, plus `at_hash`.
 
 ## Prerequisites
 
@@ -132,6 +145,21 @@ go run main.go   # listens on :8080; Vite proxies /api there
 `go-webservice` has no CORS of its own — the Vite dev server proxy
 (`vite.config.ts`, `/api` → `http://localhost:8080`) makes those requests
 same-origin, so the Go example needs no changes.
+
+> [!IMPORTANT]
+> **Port collision with Signet.** `go-webservice` hard-codes `:8080` and has no
+> `PORT` override. If your Signet is *also* on `:8080` — a common local setup —
+> then `go-webservice` cannot bind, and the Vite proxy's plaintext request
+> reaches Signet's listener instead. If Signet is serving TLS there, the
+> **Call API** buttons fail with:
+>
+> ```
+> API responded 400: Client sent an HTTP request to an HTTPS server.
+> ```
+>
+> That error means you are talking to Signet, not to the resource server. Run
+> Signet on a different port (and update `VITE_SIGNET_URL` to match), which
+> frees `:8080` for `go-webservice` and leaves the proxy config as shipped.
 
 Other scripts:
 
@@ -237,6 +265,6 @@ this example demonstrates.
 | Client type | Public (PKCE only) | Confidential (secret) or public |
 | Where tokens live | Browser `sessionStorage` | Server memory/session |
 | Backend required | No (Vite proxy for the demo API only) | Yes (Go web app) |
-| ID token validation | Trusted via TLS from the token endpoint | Full: JWKS signature + `iss`/`aud`/`exp` + `at_hash` |
+| ID token validation | **None beyond `sub` + `nonce`** — no signature, `iss`, `aud`, or `exp` | Full: JWKS signature + `iss`/`aud`/`exp` + `at_hash` |
 | XSS blast radius | Tokens exposed | Tokens unreachable from JS |
 | Use when | Pure SPA / static hosting, SSO demo | Existing server-rendered app, higher security bar |
