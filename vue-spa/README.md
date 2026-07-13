@@ -92,6 +92,12 @@ signature against JWKS, plus `iss` / `aud` / `exp`, plus `at_hash`.
    The SPA loads the discovery document on startup and shows this exact
    guidance on the page when it cannot reach Signet.
 
+   **Origins are matched exactly.** `http://localhost:5173` and
+   `http://127.0.0.1:5173` are *different* origins to both CORS and OAuth
+   redirect-URI matching, even though they reach the same server. Whichever
+   one you actually type into the browser is the one to register here — and
+   in the client's redirect URI below.
+
 2. **Register a public client** (no client secret). A confidential client's
    credentials cannot be used here — any secret shipped in a JavaScript
    bundle is public by definition, which is why this example must not and

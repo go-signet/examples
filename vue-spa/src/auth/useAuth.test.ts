@@ -42,6 +42,9 @@ vi.stubGlobal('window', {
   location: { origin: 'http://localhost:5173' },
   sessionStorage: sessionStore,
 })
+// Whitespace as it would survive a copy-paste into .env — must not reach OAuth.
+vi.stubEnv('VITE_SIGNET_URL', '  https://signet.test  ')
+vi.stubEnv('VITE_CLIENT_ID', ' spa-client\n')
 vi.stubGlobal('crypto', { randomUUID: () => 'test-nonce' })
 
 const { settings } = await import('./userManager')
@@ -65,6 +68,14 @@ beforeEach(() => {
 })
 
 describe('settings', () => {
+  it('trims whitespace out of env values before they reach OAuth', () => {
+    // Stubbed above with surrounding spaces and a trailing newline. Untrimmed,
+    // these produce an authority that will not resolve and a client_id Signet
+    // will not match — failing far from the actual cause.
+    expect(settings.authority).toBe('https://signet.test')
+    expect(settings.client_id).toBe('spa-client')
+  })
+
   it('requests the code response type, the registered scopes, and keeps all state in sessionStorage', () => {
     // Requesting the code response type is what makes oidc-client-ts apply
     // PKCE (S256) — required by Signet for public clients.
