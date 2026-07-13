@@ -1,7 +1,9 @@
-import { userManager } from '../auth/userManager'
+import { env, userManager } from '../auth/userManager'
 import { renew } from '../auth/useAuth'
 
-const base: string = import.meta.env.VITE_API_BASE ?? ''
+// Same trimming accessor the OAuth settings use: an untrimmed base would build
+// a request URL with a leading space and fail as an opaque fetch error.
+const base: string = env('VITE_API_BASE')
 
 export class ApiError extends Error {
   constructor(

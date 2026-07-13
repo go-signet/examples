@@ -42,9 +42,11 @@ vi.stubGlobal('window', {
   location: { origin: 'http://localhost:5173' },
   sessionStorage: sessionStore,
 })
-// Whitespace as it would survive a copy-paste into .env — must not reach OAuth.
+// Whitespace as it would survive a copy-paste into .env — must not reach OAuth
+// or the API client.
 vi.stubEnv('VITE_SIGNET_URL', '  https://signet.test  ')
 vi.stubEnv('VITE_CLIENT_ID', ' spa-client\n')
+vi.stubEnv('VITE_API_BASE', '  ')
 vi.stubGlobal('crypto', { randomUUID: () => 'test-nonce' })
 
 const { settings } = await import('./userManager')

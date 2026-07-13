@@ -3,7 +3,7 @@ import { UserManager, WebStorageStateStore, type UserManagerSettings } from 'oid
 // Trim every env value: a stray space survives a copy-paste into .env and then
 // fails deep inside OAuth (an authority that won't resolve, a client_id Signet
 // won't match) with an error that points nowhere near the real cause.
-const env = (key: string): string => (import.meta.env[key] ?? '').trim()
+export const env = (key: string): string => (import.meta.env[key] ?? '').trim()
 
 export const signetUrl: string = env('VITE_SIGNET_URL')
 export const clientId: string = env('VITE_CLIENT_ID')
