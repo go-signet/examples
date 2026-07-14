@@ -4,27 +4,28 @@
 [![Goreleaser](https://github.com/go-signet/examples/actions/workflows/goreleaser.yml/badge.svg?branch=main)](https://github.com/go-signet/examples/actions/workflows/goreleaser.yml)
 [![CodeQL](https://github.com/go-signet/examples/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/go-signet/examples/actions/workflows/codeql.yml)
 
-Multi-language usage examples for Signet authentication (Go, Python, Bash).
+Multi-language usage examples for Signet authentication (Go, Python, TypeScript, Bash).
 
 ## Quick Reference
 
-| Example                         | Use Case                 | OAuth Flow                   | Language | Prerequisites    |
-| ------------------------------- | ------------------------ | ---------------------------- | -------- | ---------------- |
-| [go-cli](go-cli/)               | CLI login                | Auth Code+PKCE / Device Code | Go       | Go 1.25+         |
-| [go-tui](go-tui/)               | CLI login (full TUI)     | Auth Code+PKCE / Device Code | Go       | Go 1.25+         |
-| [python-cli](python-cli/)       | CLI login                | Auth Code+PKCE / Device Code | Python   | Python 3.10+, uv |
-| [bash-cli](bash-cli/)           | CLI login (headless)     | Device Code (RFC 8628)       | Bash     | curl, jq         |
-| [go-m2m](go-m2m/)               | Service-to-service       | Client Credentials           | Go       | Go 1.25+         |
-| [python-m2m](python-m2m/)       | Service-to-service       | Client Credentials           | Python   | Python 3.10+, uv |
-| [go-webservice](go-webservice/) | API protection           | Bearer validation            | Go       | Go 1.25+         |
-| [go-jwks](go-jwks/)             | API protection (offline) | JWKS public-key validation   | Go       | Go 1.25+         |
-| [go-jwks-multi](go-jwks-multi/) | API protection (N iss)   | JWKS validation (multi)      | Go       | Go 1.25+         |
-| [go-oidc](go-oidc/)             | Web login (no SDK)       | Auth Code (coreos/go-oidc)   | Go       | Go 1.25+         |
-| [kong-mcp](kong-mcp/)           | MCP gateway (Kong)       | PKCE entry + JWKS validation | Go       | Go 1.25+, Kong   |
+| Example                         | Use Case                 | OAuth Flow                   | Language   | Prerequisites    |
+| ------------------------------- | ------------------------ | ---------------------------- | ---------- | ---------------- |
+| [go-cli](go-cli/)               | CLI login                | Auth Code+PKCE / Device Code | Go         | Go 1.25+         |
+| [go-tui](go-tui/)               | CLI login (full TUI)     | Auth Code+PKCE / Device Code | Go         | Go 1.25+         |
+| [python-cli](python-cli/)       | CLI login                | Auth Code+PKCE / Device Code | Python     | Python 3.10+, uv |
+| [bash-cli](bash-cli/)           | CLI login (headless)     | Device Code (RFC 8628)       | Bash       | curl, jq         |
+| [go-m2m](go-m2m/)               | Service-to-service       | Client Credentials           | Go         | Go 1.25+         |
+| [python-m2m](python-m2m/)       | Service-to-service       | Client Credentials           | Python     | Python 3.10+, uv |
+| [go-webservice](go-webservice/) | API protection           | Bearer validation            | Go         | Go 1.25+         |
+| [go-jwks](go-jwks/)             | API protection (offline) | JWKS public-key validation   | Go         | Go 1.25+         |
+| [go-jwks-multi](go-jwks-multi/) | API protection (N iss)   | JWKS validation (multi)      | Go         | Go 1.25+         |
+| [go-oidc](go-oidc/)             | Web login (no SDK)       | Auth Code (coreos/go-oidc)   | Go         | Go 1.25+         |
+| [vue-spa](vue-spa/)             | Web login (SPA)          | Auth Code + PKCE (browser)   | TypeScript | Bun 1.2+         |
+| [kong-mcp](kong-mcp/)           | MCP gateway (Kong)       | PKCE entry + JWKS validation | Go         | Go 1.25+, Kong   |
 
 ## Environment Setup
 
-All examples except [kong-mcp](kong-mcp/) require `SIGNET_URL` and `CLIENT_ID`. M2M examples additionally require `CLIENT_SECRET`. The kong-mcp gateway reads no environment variables — configure it via the plugin block in [`kong-mcp/kong.yml`](kong-mcp/kong.yml) (`issuer`, `gateway_origin`, `jwks_uri`, ...).
+All examples except [kong-mcp](kong-mcp/) require `SIGNET_URL` and `CLIENT_ID` ([vue-spa](vue-spa/) uses the `VITE_`-prefixed equivalents — see its README). M2M examples additionally require `CLIENT_SECRET`. The kong-mcp gateway reads no environment variables — configure it via the plugin block in [`kong-mcp/kong.yml`](kong-mcp/kong.yml) (`issuer`, `gateway_origin`, `jwks_uri`, ...).
 
 Set via environment variables:
 
@@ -147,6 +148,26 @@ Browser-based Authorization Code flow against any OpenID Connect provider using 
 cd go-oidc
 go run main.go
 # then open http://localhost:8080/
+```
+
+## SPA Web Login (Vue 3, browser-only)
+
+The public-client counterpart to [go-oidc](go-oidc/): a **Vue 3 + Vite +
+TypeScript** single-page app that runs Authorization Code + **PKCE** entirely
+in the browser with [`oidc-client-ts`](https://github.com/authts/oidc-client-ts)
+— no backend, no client secret. Demonstrates SSO sign-in, refresh token
+rotation, calling the [go-webservice](go-webservice/) API with a Bearer token
+(via the Vite dev proxy), and sign-out via token revocation. Requires Signet
+to run with `CORS_ENABLED=true` and a registered **public** client — setup
+steps and the sessionStorage/XSS trade-off are covered in its README. Uses
+[Bun](https://bun.sh) for package management and scripts.
+
+```bash
+cd vue-spa
+cp .env.example .env   # set VITE_SIGNET_URL and VITE_CLIENT_ID
+bun install
+bun run dev
+# then open http://localhost:5173/
 ```
 
 ## MCP OAuth Gateway (Kong)
