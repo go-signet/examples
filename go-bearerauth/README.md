@@ -99,10 +99,10 @@ go-bearerauth/
 └── README.md
 ```
 
-| Endpoint | Authentication | Description |
-| --- | --- | --- |
-| `GET /health` | None | Returns `{"status":"ok"}`. |
-| `GET /api/whoami` | Bearer | Returns the normalized verified identity. |
+| Endpoint          | Authentication | Description                               |
+| ----------------- | -------------- | ----------------------------------------- |
+| `GET /health`     | None           | Returns `{"status":"ok"}`.                |
+| `GET /api/whoami` | Bearer         | Returns the normalized verified identity. |
 
 ## Prepare Signet
 
@@ -185,18 +185,18 @@ The programs load `.env` when present. Existing process environment variables
 take precedence. A populated `.env` is ignored by this repository, but still
 treat it as a secret-bearing local file.
 
-| Variable | Required by | Default | Meaning |
-| --- | --- | --- | --- |
-| `SIGNET_URL` | Server | — | Exact Signet issuer URL used for discovery and issuer policy. |
-| `CLIENT_ID` | Server | — | Exact Client App accepted for both JWTs and Personal API Keys. |
-| `EXPECTED_AUDIENCE` | Server* | — | Required JWT `aud` value. |
-| `SKIP_AUDIENCE_CHECK` | Server* | `0` | Empty/`0` checks JWT audience; exactly `1` explicitly disables it. |
-| `REQUIRED_SCOPES` | Server | empty | Whitespace-separated scopes; every listed scope is required. |
-| `INTROSPECTION_CLIENT_ID` | Server | empty | With the secret, switches Personal API Keys to introspection. |
-| `INTROSPECTION_CLIENT_SECRET` | Server | empty | Confidential secret paired with the introspection Client ID. |
-| `SERVER_ADDR` | Server | `:8080` | Address passed to the HTTP server. |
-| `API_URL` | Client | `http://localhost:8080/api/whoami` | URL called by the example client. |
-| `BEARER_TOKEN` | Client | — | One full JWT access token or full `sgk_…` key. |
+| Variable                      | Required by | Default                            | Meaning                                                            |
+| ----------------------------- | ----------- | ---------------------------------- | ------------------------------------------------------------------ |
+| `SIGNET_URL`                  | Server      | —                                  | Exact Signet issuer URL used for discovery and issuer policy.      |
+| `CLIENT_ID`                   | Server      | —                                  | Exact Client App accepted for both JWTs and Personal API Keys.     |
+| `EXPECTED_AUDIENCE`           | Server\*    | —                                  | Required JWT `aud` value.                                          |
+| `SKIP_AUDIENCE_CHECK`         | Server\*    | `0`                                | Empty/`0` checks JWT audience; exactly `1` explicitly disables it. |
+| `REQUIRED_SCOPES`             | Server      | empty                              | Whitespace-separated scopes; every listed scope is required.       |
+| `INTROSPECTION_CLIENT_ID`     | Server      | empty                              | With the secret, switches Personal API Keys to introspection.      |
+| `INTROSPECTION_CLIENT_SECRET` | Server      | empty                              | Confidential secret paired with the introspection Client ID.       |
+| `SERVER_ADDR`                 | Server      | `:8080`                            | Address passed to the HTTP server.                                 |
+| `API_URL`                     | Client      | `http://localhost:8080/api/whoami` | URL called by the example client.                                  |
+| `BEARER_TOKEN`                | Client      | —                                  | One full JWT access token or full `sgk_…` key.                     |
 
 \* Set a non-empty `EXPECTED_AUDIENCE` **or**
 `SKIP_AUDIENCE_CHECK=1`, never both. Omitting both, setting both, or setting
@@ -328,10 +328,7 @@ Content-Type: application/json
   "subject_type": "client",
   "issuer": "https://auth.example.com",
   "client_id": "orders-api",
-  "scopes": [
-    "orders.read",
-    "profile"
-  ],
+  "scopes": ["orders.read", "profile"],
   "expires_at": "2026-07-30T12:34:56Z",
   "credential_type": "jwt"
 }
@@ -351,10 +348,7 @@ Content-Type: application/json
   "subject_type": "user",
   "issuer": "https://auth.example.com",
   "client_id": "orders-api",
-  "scopes": [
-    "orders.read",
-    "profile"
-  ],
+  "scopes": ["orders.read", "profile"],
   "expires_at": "2026-07-30T12:34:56Z",
   "credential_type": "personal_api_key"
 }
@@ -368,15 +362,15 @@ subject is `client:<client_id>` normalizes to `"client"`.
 
 `/api/whoami` serializes only the normalized identity:
 
-| JSON field | Source/meaning |
-| --- | --- |
-| `subject` | JWT `sub`, tokeninfo `user_id`, or introspection `sub`. |
-| `subject_type` | `user`, or `client` for a JWT `client:<client_id>` subject. |
-| `issuer` | Verified issuer after exact policy matching. |
-| `client_id` | Client App that owns the credential. |
-| `scopes` | Sorted, de-duplicated verified scopes. |
-| `expires_at` | Credential expiry encoded by `time.Time` as RFC 3339/RFC 3339 Nano. |
-| `credential_type` | `jwt` or `personal_api_key`. |
+| JSON field        | Source/meaning                                                      |
+| ----------------- | ------------------------------------------------------------------- |
+| `subject`         | JWT `sub`, tokeninfo `user_id`, or introspection `sub`.             |
+| `subject_type`    | `user`, or `client` for a JWT `client:<client_id>` subject.         |
+| `issuer`          | Verified issuer after exact policy matching.                        |
+| `client_id`       | Client App that owns the credential.                                |
+| `scopes`          | Sorted, de-duplicated verified scopes.                              |
+| `expires_at`      | Credential expiry encoded by `time.Time` as RFC 3339/RFC 3339 Nano. |
+| `credential_type` | `jwt` or `personal_api_key`.                                        |
 
 The identity deliberately contains no raw credential, audience, arbitrary JWT
 claims, username, JTI, or client secret. Application handlers do not need to
@@ -386,13 +380,13 @@ branch by credential type unless their business rules intentionally differ.
 
 The adapter follows RFC 6750-style challenges and fails closed:
 
-| Condition | Status | `WWW-Authenticate` |
-| --- | ---: | --- |
-| Header missing, empty, malformed, or not Bearer | 401 | `Bearer` |
-| Invalid/expired credential, wrong issuer, or wrong Client App | 401 | `Bearer error="invalid_token"` |
-| Valid credential missing a required scope | 403 | `Bearer error="insufficient_scope", scope="<missing>"` |
-| Online verifier cannot establish a verdict | 503 | Absent; retry instead of re-authenticating |
-| Unexpected adapter error or missing context identity | 500 | Absent; fail closed |
+| Condition                                                     | Status | `WWW-Authenticate`                                     |
+| ------------------------------------------------------------- | -----: | ------------------------------------------------------ |
+| Header missing, empty, malformed, or not Bearer               |    401 | `Bearer`                                               |
+| Invalid/expired credential, wrong issuer, or wrong Client App |    401 | `Bearer error="invalid_token"`                         |
+| Valid credential missing a required scope                     |    403 | `Bearer error="insufficient_scope", scope="<missing>"` |
+| Online verifier cannot establish a verdict                    |    503 | Absent; retry instead of re-authenticating             |
+| Unexpected adapter error or missing context identity          |    500 | Absent; fail closed                                    |
 
 All adapter-generated auth errors have `Content-Type: application/json` and
 `Cache-Control: no-store`. The Bearer scheme is matched case-insensitively, but
@@ -519,14 +513,14 @@ and consider introspection when your deployment needs its RFC 7662 semantics.
 The mode is selected once when the server starts; there is no request-time
 fallback.
 
-| | Default tokeninfo | Optional introspection |
-| --- | --- | --- |
-| SDK selection | Both introspection variables empty | Both introspection variables set |
-| Signet request | `GET /oauth/tokeninfo` | `POST /oauth/introspect` |
-| Key transport | `Authorization: Bearer sgk_…` | Form field `token=sgk_…` |
-| Client authentication | None | Client ID and secret |
-| Inactive-key behavior | Uniform `401 invalid_token` | `{"active":false}` |
-| Ownership | No introspection client | Client must normally own the key's app |
+|                       | Default tokeninfo                  | Optional introspection                 |
+| --------------------- | ---------------------------------- | -------------------------------------- |
+| SDK selection         | Both introspection variables empty | Both introspection variables set       |
+| Signet request        | `GET /oauth/tokeninfo`             | `POST /oauth/introspect`               |
+| Key transport         | `Authorization: Bearer sgk_…`      | Form field `token=sgk_…`               |
+| Client authentication | None                               | Client ID and secret                   |
+| Inactive-key behavior | Uniform `401 invalid_token`        | `{"active":false}`                     |
+| Ownership             | No introspection client            | Client must normally own the key's app |
 
 To enable introspection:
 
