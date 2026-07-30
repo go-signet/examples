@@ -1,0 +1,14 @@
+github.com/appleboy/go-httpretry v0.13.0 h1:8m1Q+Kkutr5v1AZVR00HkSHXvNZEJ84RXUryqvd/6MM=
+github.com/appleboy/go-httpretry v0.13.0/go.mod h1:M0EZ/bwBWvCo5eRjQBb+/CRNjYqBcZDcL252FqxiYR8=
+github.com/coreos/go-oidc/v3 v3.19.0 h1:F/xyOi3x1UnG1U27YVnM1N6bHiL1K2upi6U/0qr8r+I=
+github.com/coreos/go-oidc/v3 v3.19.0/go.mod h1:DYCf24+ncYi+XkIH97GY1+dqoRlbaSI26KVTCI9SrY4=
+github.com/go-jose/go-jose/v4 v4.1.4 h1:moDMcTHmvE6Groj34emNPLs/qtYXRVcd6S7NHbHz3kA=
+github.com/go-jose/go-jose/v4 v4.1.4/go.mod h1:x4oUasVrzR7071A4TnHLGSPpNOm2a21K9Kf04k1rs08=
+github.com/go-signet/sdk-go v1.1.0 h1:wHKg9P+goQ14A1Q0gtC6m3mCzRFWwL1peAGz/zhmAZQ=
+github.com/go-signet/sdk-go v1.1.0/go.mod h1:bmi7nDAu7o6MQnUE3K7ZNEKU4xqh3u/SMbPC5GanOR8=
+github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
+github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
+golang.org/x/oauth2 v0.36.0 h1:peZ/1z27fi9hUOFCAZaHyrpWG5lwe0RJEEEeH0ThlIs=
+golang.org/x/oauth2 v0.36.0/go.mod h1:YDBUJMTkDnJS+A4BP4eZBjCqtokkg1hODuPjwiGPO7Q=
+golang.org/x/sync v0.21.0 h1:HLII4xRRTtCRkxYp4HNFF0Js/Og6q2i++KXbg0gHCwM=
+golang.org/x/sync v0.21.0/go.mod h1:9xrNwdLfx4jkKbNva9FpL6vEN7evnE43NNNJQ2LF3+0=

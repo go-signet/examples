@@ -17,6 +17,7 @@ Multi-language usage examples for Signet authentication (Go, Python, TypeScript,
 | [go-m2m](go-m2m/)               | Service-to-service       | Client Credentials           | Go         | Go 1.25+         |
 | [python-m2m](python-m2m/)       | Service-to-service       | Client Credentials           | Python     | Python 3.10+, uv |
 | [go-webservice](go-webservice/) | API protection           | Bearer validation            | Go         | Go 1.25+         |
+| [go-bearerauth](go-bearerauth/) | API protection (mixed)   | JWT + Personal API Key       | Go         | Go 1.25+         |
 | [go-jwks](go-jwks/)             | API protection (offline) | JWKS public-key validation   | Go         | Go 1.25+         |
 | [go-jwks-multi](go-jwks-multi/) | API protection (N iss)   | JWKS validation (multi)      | Go         | Go 1.25+         |
 | [go-oidc](go-oidc/)             | Web login (no SDK)       | Auth Code (coreos/go-oidc)   | Go         | Go 1.25+         |
@@ -25,7 +26,7 @@ Multi-language usage examples for Signet authentication (Go, Python, TypeScript,
 
 ## Environment Setup
 
-All examples except [kong-mcp](kong-mcp/) require `SIGNET_URL` and `CLIENT_ID` ([vue-spa](vue-spa/) uses the `VITE_`-prefixed equivalents — see its README). M2M examples additionally require `CLIENT_SECRET`. The kong-mcp gateway reads no environment variables — configure it via the plugin block in [`kong-mcp/kong.yml`](kong-mcp/kong.yml) (`issuer`, `gateway_origin`, `jwks_uri`, ...).
+All examples except [kong-mcp](kong-mcp/) require `SIGNET_URL` and `CLIENT_ID` ([vue-spa](vue-spa/) uses the `VITE_`-prefixed equivalents — see its README). M2M examples additionally require `CLIENT_SECRET`. The [go-bearerauth](go-bearerauth/) server also requires `EXPECTED_AUDIENCE` unless its explicit audience opt-out is enabled, and its client requires `BEARER_TOKEN`. The kong-mcp gateway reads no environment variables — configure it via the plugin block in [`kong-mcp/kong.yml`](kong-mcp/kong.yml) (`issuer`, `gateway_origin`, `jwks_uri`, ...).
 
 Set via environment variables:
 
@@ -122,6 +123,40 @@ curl -H "Authorization: Bearer <token>" http://localhost:8080/api/profile
 curl -H "Authorization: Bearer <token>" http://localhost:8080/api/data
 ```
 
+## Mixed JWT + Personal API Key Validation
+
+Uses
+[`sdk-go/bearerauth`](https://github.com/go-signet/sdk-go/tree/v1.1.0/bearerauth)
+v1.1.0 to protect one route that accepts either a JWT access token or a
+complete Signet Personal API Key (`sgk_…`). JWTs are verified locally after
+OIDC discovery and lazy JWKS loading; Personal API Keys receive an online
+tokeninfo or introspection verdict on every request. Both credential kinds
+produce one normalized identity and pass the same issuer, Client App, and scope
+policy.
+
+```bash
+cd go-bearerauth
+cp .env.example .env
+chmod 600 .env
+# Configure SIGNET_URL, CLIENT_ID, EXPECTED_AUDIENCE and optional scopes.
+go run ./server
+
+# In another terminal, set BEARER_TOKEN in .env to a JWT or full sgk_ key:
+go run ./client
+```
+
+Choose the resource-server example by credential and integration needs:
+
+| Example | Accepted credentials | Per-request Signet call | HTTP integration |
+| --- | --- | --- | --- |
+| [go-webservice](go-webservice/) | Tokens accepted by tokeninfo | Tokeninfo for every credential | Legacy SDK `net/http` middleware writes responses |
+| [go-jwks](go-jwks/) | JWT access tokens only | Lazy first-use/unknown-key JWKS fetch; otherwise none | JWT-only `net/http` middleware |
+| [go-bearerauth](go-bearerauth/) | JWT access tokens and `sgk_…` Personal API Keys | JWT: lazy JWKS fetch, then normally none; key: online every request, with retries possible | Framework-neutral verifier with an explicit adapter |
+
+Use `go-bearerauth` when one route must support both modern OAuth clients and
+scripts/CI holding Personal API Keys, or when the application needs to own its
+HTTP error mapping and request context.
+
 ## Offline JWKS Validation (no SDK, no introspection)
 
 Alternative resource-server pattern: validates JWT access tokens locally using the provider's public keys (`jwks_uri`), with no per-request callback to Signet. Ideal for latency-sensitive or multi-region deployments. Trade-off vs. [go-webservice](go-webservice/): revoked tokens stay valid until their `exp`, so keep access-token TTLs short.
@@ -192,7 +227,7 @@ docker compose up --build                   # demo stack: Kong + stub MCP upstre
 - **Authorization Code + PKCE** — Browser-based login, most secure for CLI tools on machines with a browser. The client opens a browser, the user authenticates, and a code is exchanged for tokens.
 - **Device Code ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628))** — For headless/SSH environments. The user authenticates on a separate device by visiting a URL and entering a code.
 - **Client Credentials** — Service-to-service auth with a shared secret. No user involved.
-- **Bearer Token Validation** — Server-side introspection of access tokens sent by clients in the `Authorization` header.
+- **Bearer Token Validation** — Server-side verification of credentials sent in the `Authorization` header: online tokeninfo/introspection, offline JWT/JWKS, or the mixed `bearerauth` model.
 
 ## Troubleshooting
 
