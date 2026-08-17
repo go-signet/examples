@@ -1,8 +1,8 @@
 # Signet Examples
 
-[![Trivy Security Scan](https://github.com/go-signet/examples/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/go-signet/examples/actions/workflows/security.yml)
-[![Goreleaser](https://github.com/go-signet/examples/actions/workflows/goreleaser.yml/badge.svg?branch=main)](https://github.com/go-signet/examples/actions/workflows/goreleaser.yml)
-[![CodeQL](https://github.com/go-signet/examples/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/go-signet/examples/actions/workflows/codeql.yml)
+[![CodeQL](https://github.com/go-signet/examples/actions/workflows/codeql.yml/badge.svg)](https://github.com/go-signet/examples/actions/workflows/codeql.yml)
+[![Trivy Security Scan](https://github.com/go-signet/examples/actions/workflows/security.yml/badge.svg)](https://github.com/go-signet/examples/actions/workflows/security.yml)
+[![GitHub release](https://img.shields.io/github/v/release/go-signet/examples?include_prereleases)](https://github.com/go-signet/examples/releases)
 
 Multi-language usage examples for Signet authentication (Go, Python, TypeScript, Bash).
 
