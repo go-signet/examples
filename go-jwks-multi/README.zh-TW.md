@@ -71,7 +71,7 @@ sequenceDiagram
 
 ## 先決條件
 
-- Go 1.25+
+- Go 1.26+
 - 兩個或更多 Signet 發行者，每個都需公開 `/.well-known/openid-configuration` 並暴露 `jwks_uri`，使用非對稱（RS256 / ES256 / PS256）簽章。
 
 ## 環境變數

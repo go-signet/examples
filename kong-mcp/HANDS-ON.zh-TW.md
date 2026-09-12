@@ -16,7 +16,7 @@
 
 | 工具           | 確認指令                                             | 備註                                                         |
 | -------------- | ---------------------------------------------------- | ------------------------------------------------------------ |
-| Go 1.25.10+    | `go version`                                         | 編譯 plugin 與 test issuer（`go.mod` 的 `go` 指令為 1.25.10）|
+| Go 1.26+       | `go version`                                         | 編譯 plugin 與 test issuer（`go-jwks-multi/go.mod` 要求 Go 1.26.0）|
 | Docker         | `docker version`                                     | Docker Desktop、colima、OrbStack 皆可                        |
 | Docker Compose | `docker compose version` 或 `docker-compose version` | v2 即可。本機若只有獨立版 `docker-compose`，下面指令照用即可 |
 | curl / openssl | 內建                                                 | 驗證用                                                       |

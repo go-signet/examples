@@ -46,7 +46,7 @@ Without Signet CLI, every OAuth-enabled CLI tool must implement the same boilerp
 
 ### Prerequisites
 
-- Go 1.25+
+- Go 1.26+
 - A running Signet server — get the `CLIENT_ID` UUID from its startup logs (see the [examples repository README](../README.md#environment-setup) for shared environment setup)
 
 ### 1. Configure

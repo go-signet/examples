@@ -1,16 +1,16 @@
 module github.com/go-signet/examples/go-tui
 
-go 1.25.10
+go 1.26.0
 
 require (
 	charm.land/lipgloss/v2 v2.0.3
 	github.com/appleboy/go-httpretry v0.13.0
-	github.com/go-signet/sdk-go v1.0.2
+	github.com/go-signet/sdk-go v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-isatty v0.0.22
 	github.com/spf13/cobra v1.10.2
-	golang.org/x/oauth2 v0.36.0
+	golang.org/x/oauth2 v0.37.0
 	golang.org/x/term v0.44.0
 )
 
@@ -33,6 +33,6 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zalando/go-keyring v0.2.8 // indirect
-	golang.org/x/sync v0.21.0 // indirect
-	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
 )
