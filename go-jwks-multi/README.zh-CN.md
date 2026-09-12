@@ -71,7 +71,7 @@ sequenceDiagram
 
 ## 先决条件
 
-- Go 1.25+
+- Go 1.26+
 - 两个或更多 Signet 签发者，每个都需公开 `/.well-known/openid-configuration` 并暴露 `jwks_uri`，使用非对称（RS256 / ES256 / PS256）签名。
 
 ## 环境变量

@@ -10,16 +10,16 @@ Multi-language usage examples for Signet authentication (Go, Python, TypeScript,
 
 | Example                         | Use Case                 | OAuth Flow                   | Language   | Prerequisites    |
 | ------------------------------- | ------------------------ | ---------------------------- | ---------- | ---------------- |
-| [go-cli](go-cli/)               | CLI login                | Auth Code+PKCE / Device Code | Go         | Go 1.25+         |
-| [go-tui](go-tui/)               | CLI login (full TUI)     | Auth Code+PKCE / Device Code | Go         | Go 1.25+         |
+| [go-cli](go-cli/)               | CLI login                | Auth Code+PKCE / Device Code | Go         | Go 1.26+         |
+| [go-tui](go-tui/)               | CLI login (full TUI)     | Auth Code+PKCE / Device Code | Go         | Go 1.26+         |
 | [python-cli](python-cli/)       | CLI login                | Auth Code+PKCE / Device Code | Python     | Python 3.10+, uv |
 | [bash-cli](bash-cli/)           | CLI login (headless)     | Device Code (RFC 8628)       | Bash       | curl, jq         |
-| [go-m2m](go-m2m/)               | Service-to-service       | Client Credentials           | Go         | Go 1.25+         |
+| [go-m2m](go-m2m/)               | Service-to-service       | Client Credentials           | Go         | Go 1.26+         |
 | [python-m2m](python-m2m/)       | Service-to-service       | Client Credentials           | Python     | Python 3.10+, uv |
-| [go-webservice](go-webservice/) | API protection           | Bearer validation            | Go         | Go 1.25+         |
-| [go-bearerauth](go-bearerauth/) | API protection (mixed)   | JWT + Personal API Key       | Go         | Go 1.25+         |
-| [go-jwks](go-jwks/)             | API protection (offline) | JWKS public-key validation   | Go         | Go 1.25+         |
-| [go-jwks-multi](go-jwks-multi/) | API protection (N iss)   | JWKS validation (multi)      | Go         | Go 1.25+         |
+| [go-webservice](go-webservice/) | API protection           | Bearer validation            | Go         | Go 1.26+         |
+| [go-bearerauth](go-bearerauth/) | API protection (mixed)   | JWT + Personal API Key       | Go         | Go 1.26+         |
+| [go-jwks](go-jwks/)             | API protection (offline) | JWKS public-key validation   | Go         | Go 1.26+         |
+| [go-jwks-multi](go-jwks-multi/) | API protection (N iss)   | JWKS validation (multi)      | Go         | Go 1.26+         |
 | [go-oidc](go-oidc/)             | Web login (no SDK)       | Auth Code (coreos/go-oidc)   | Go         | Go 1.25+         |
 | [vue-spa](vue-spa/)             | Web login (SPA)          | Auth Code + PKCE (browser)   | TypeScript | Bun 1.2+         |
 | [kong-mcp](kong-mcp/)           | MCP gateway (Kong)       | PKCE entry + JWKS validation | Go         | Go 1.25+, Kong   |
@@ -101,6 +101,20 @@ cd go-m2m
 go run main.go
 ```
 
+### Resource indicators (sdk-go v1.2.0)
+
+[Go CLI](go-cli/README.md#request-a-token-for-an-api-resources) and
+[Go M2M](go-m2m/README.md#request-a-token-for-an-api-resources) accept optional
+space-separated `RESOURCES` and demonstrate `WithResources(...)`. The resource
+identifies the intended API/audience; scopes identify requested permissions.
+Configure Signet's client resource allowlist, and have the receiving API enforce
+the matching `EXPECTED_AUDIENCE` (see `go-jwks`).
+
+For M2M, set `RESOURCES=https://api.example.com` and
+`API_URL=http://localhost:8088/api/data` to request a targeted token and call the
+local JWKS-protected API. The linked walkthrough includes success and rejection
+cases. Leaving both variables unset preserves the original userinfo example.
+
 ### Python M2M
 
 Uses the Signet Python SDK with auto-refreshing `BearerAuth` for httpx.
@@ -126,8 +140,8 @@ curl -H "Authorization: Bearer <token>" http://localhost:8080/api/data
 ## Mixed JWT + Personal API Key Validation
 
 Uses
-[`sdk-go/bearerauth`](https://github.com/go-signet/sdk-go/tree/v1.1.0/bearerauth)
-v1.1.0 to protect one route that accepts either a JWT access token or a
+[`sdk-go/bearerauth`](https://github.com/go-signet/sdk-go/tree/v1.2.0/bearerauth)
+v1.2.0 to protect one route that accepts either a JWT access token or a
 complete Signet Personal API Key (`sgk_…`). JWTs are verified locally after
 OIDC discovery and lazy JWKS loading; Personal API Keys receive an online
 tokeninfo or introspection verdict on every request. Both credential kinds

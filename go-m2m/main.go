@@ -17,7 +17,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-signet/sdk-go/clientcreds"
@@ -26,55 +28,84 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type config struct {
+	signetURL, clientID, clientSecret string
+	resources                         []string
+	apiURL                            string
+}
+
 func main() {
 	_ = godotenv.Load()
+	cfg := config{
+		signetURL:    os.Getenv("SIGNET_URL"),
+		clientID:     os.Getenv("CLIENT_ID"),
+		clientSecret: os.Getenv("CLIENT_SECRET"),
+		resources:    strings.Fields(os.Getenv("RESOURCES")),
+		apiURL:       strings.TrimSpace(os.Getenv("API_URL")),
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := run(ctx, cfg, os.Stdout); err != nil {
+		log.Fatal(err)
+	}
+}
 
-	signetURL := os.Getenv("SIGNET_URL")
-	clientID := os.Getenv("CLIENT_ID")
-	clientSecret := os.Getenv("CLIENT_SECRET")
-
-	if signetURL == "" || clientID == "" || clientSecret == "" {
-		log.Fatal("Set SIGNET_URL, CLIENT_ID, and CLIENT_SECRET")
+func run(ctx context.Context, cfg config, out io.Writer) error {
+	if cfg.signetURL == "" || cfg.clientID == "" || cfg.clientSecret == "" {
+		return fmt.Errorf("set SIGNET_URL, CLIENT_ID, and CLIENT_SECRET")
+	}
+	if len(cfg.resources) > 0 && cfg.apiURL == "" {
+		return fmt.Errorf("set API_URL when requesting RESOURCES")
 	}
 
-	ctx := context.Background()
-
 	// 1. Auto-discover endpoints
-	disco, err := discovery.NewClient(signetURL)
+	disco, err := discovery.NewClient(cfg.signetURL)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	meta, err := disco.Fetch(ctx)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// 2. Create OAuth client
 	endpoints := meta.Endpoints()
-	client, err := oauth.NewClient(clientID, endpoints,
-		oauth.WithClientSecret(clientSecret),
+	client, err := oauth.NewClient(cfg.clientID, endpoints,
+		oauth.WithClientSecret(cfg.clientSecret),
 	)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// 3. Create auto-refreshing token source
 	ts := clientcreds.NewTokenSource(client,
 		clientcreds.WithScopes("profile", "email"),
+		clientcreds.WithResources(cfg.resources...),
 		clientcreds.WithExpiryDelta(30*time.Second),
 	)
 
-	// 4. Use the auto-authenticated HTTP client against the userinfo endpoint
-	// the issuer advertised in discovery. Don't hardcode the path: that breaks
-	// on a trailing slash in SIGNET_URL (https://host//oauth/userinfo) and
-	// on any issuer whose userinfo endpoint isn't at <base>/oauth/userinfo.
-	if endpoints.UserinfoURL == "" {
-		log.Fatal("Signet discovery did not advertise a userinfo_endpoint")
+	// 4. Call the target API. A resource identifier is an audience, not
+	// necessarily the URL of an HTTP endpoint, so configure API_URL separately.
+	targetURL := cfg.apiURL
+	if targetURL == "" {
+		targetURL = endpoints.UserinfoURL
+	}
+	if targetURL == "" {
+		return fmt.Errorf("set API_URL or use an issuer advertising userinfo_endpoint")
 	}
 	httpClient := ts.HTTPClient()
-	resp, err := httpClient.Get(endpoints.UserinfoURL)
+	// The token transport attaches a credential to every request. Do not let
+	// an API redirect send the resource-targeted token to a different endpoint.
+	httpClient.CheckRedirect = func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
 	if err != nil {
-		log.Fatal(err)
+		return err
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -82,14 +113,18 @@ func main() {
 	lr := io.LimitReader(resp.Body, maxBodySize+1)
 	body, err := io.ReadAll(lr)
 	if err != nil {
-		log.Fatalf("Failed to read response body: %v", err)
+		return fmt.Errorf("read response body: %w", err)
 	}
 	truncated := len(body) > maxBodySize
 	if truncated {
 		body = body[:maxBodySize]
 	}
-	fmt.Printf("Status: %d\nBody: %s\n", resp.StatusCode, body)
+	fmt.Fprintf(out, "Status: %d\nBody: %s\n", resp.StatusCode, body)
 	if truncated {
-		fmt.Println("(response body truncated to 1 MB)")
+		fmt.Fprintln(out, "(response body truncated to 1 MB)")
 	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("API returned HTTP %d", resp.StatusCode)
+	}
+	return nil
 }
