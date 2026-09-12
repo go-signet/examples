@@ -8,7 +8,7 @@ Uses the **Client Credentials** grant. The service authenticates with its own `C
 
 ## Prerequisites
 
-- Go 1.25+
+- Go 1.26+
 - An Signet server with a configured OAuth client (with client secret)
 
 ## Environment Variables

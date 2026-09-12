@@ -1,8 +1,8 @@
 # Go Bearer Authentication — JWT + Personal API Key
 
 This example protects one Go HTTP endpoint with
-[`github.com/go-signet/sdk-go/bearerauth`](https://github.com/go-signet/sdk-go/tree/v1.1.0/bearerauth)
-**v1.1.0**. The same route accepts either:
+[`github.com/go-signet/sdk-go/bearerauth`](https://github.com/go-signet/sdk-go/tree/v1.2.0/bearerauth)
+**v1.2.0**. The same route accepts either:
 
 - a Signet JWT access token, verified locally against the issuer's JWKS; or
 - a complete Signet Personal API Key (`sgk_…`), verified online through
@@ -82,7 +82,7 @@ SDK deliberately does not cache or coalesce those verdicts.
 
 ## Prerequisites
 
-- Go 1.25.10 or a compatible Go 1.25+ toolchain.
+- Go 1.26+ (required by sdk-go v1.2.0).
 - A reachable Signet issuer with OIDC discovery and asymmetric JWT signing.
 - A Signet Client App whose ID, audience, and scopes you control.
 - For the Personal API Key path, Signet Personal API Keys must be enabled.
@@ -95,7 +95,7 @@ go-bearerauth/
 ├── client/          # Sends one bounded GET with Authorization: Bearer …
 ├── server/          # net/http adapter around bearerauth.Verifier
 ├── .env.example
-├── go.mod           # Pins github.com/go-signet/sdk-go v1.1.0
+├── go.mod           # Pins github.com/go-signet/sdk-go v1.2.0
 └── README.md
 ```
 
