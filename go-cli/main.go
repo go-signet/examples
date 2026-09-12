@@ -14,8 +14,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/go-signet/sdk-go"
 	"github.com/go-signet/sdk-go/oauth"
@@ -36,11 +38,12 @@ func main() {
 		signetURL,
 		clientID,
 		signet.WithScopes("profile", "email"),
+		signet.WithResources(strings.Fields(os.Getenv("RESOURCES"))...),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	printTokenInfo(ctx, client, token)
+	printTokenInfo(ctx, os.Stdout, client, token)
 }
 
 func maskToken(s string) string {
@@ -53,36 +56,37 @@ func maskToken(s string) string {
 	return s[:8] + "..."
 }
 
-func printTokenInfo(ctx context.Context, client *oauth.Client, token *oauth.Token) {
+func printTokenInfo(ctx context.Context, out io.Writer, client *oauth.Client, token *oauth.Token) {
 	// UserInfo is best-effort: a transient failure here (5xx, timeout) must
 	// not suppress the token and introspection details this command exists
 	// to print, so report it and keep going rather than returning early.
 	if info, err := client.UserInfo(ctx, token.AccessToken); err != nil {
-		fmt.Printf("UserInfo error: %v\n", err)
+		fmt.Fprintf(out, "UserInfo error: %v\n", err)
 	} else {
-		fmt.Printf("User: %s (%s)\n", info.Name, info.Email)
-		fmt.Printf("Subject: %s\n", info.Sub)
+		fmt.Fprintf(out, "User: %s (%s)\n", info.Name, info.Email)
+		fmt.Fprintf(out, "Subject: %s\n", info.Sub)
 	}
 
-	fmt.Printf("Access Token: %s\n", maskToken(token.AccessToken))
-	fmt.Printf("Refresh Token: %s\n", maskToken(token.RefreshToken))
-	fmt.Printf("Token Type: %s\n", token.TokenType)
-	fmt.Printf("Expires In: %d\n", token.ExpiresIn)
-	fmt.Printf("Expires At: %s\n", token.ExpiresAt)
-	fmt.Printf("Scope: %s\n", token.Scope)
-	fmt.Printf("ID Token: %s\n", maskToken(token.IDToken))
+	fmt.Fprintf(out, "Access Token: %s\n", maskToken(token.AccessToken))
+	fmt.Fprintf(out, "Refresh Token: %s\n", maskToken(token.RefreshToken))
+	fmt.Fprintf(out, "Token Type: %s\n", token.TokenType)
+	fmt.Fprintf(out, "Expires In: %d\n", token.ExpiresIn)
+	fmt.Fprintf(out, "Expires At: %s\n", token.ExpiresAt)
+	fmt.Fprintf(out, "Scope: %s\n", token.Scope)
+	fmt.Fprintf(out, "ID Token: %s\n", maskToken(token.IDToken))
 
 	// Fetch token info for detailed scope and metadata
 	tokenInfo, err := client.TokenInfoRequest(ctx, token.AccessToken)
 	if err != nil {
-		fmt.Printf("TokenInfo error: %v\n", err)
+		fmt.Fprintf(out, "TokenInfo error: %v\n", err)
 		return
 	}
-	fmt.Printf("TokenInfo Active: %v\n", tokenInfo.Active)
-	fmt.Printf("TokenInfo UserID: %s\n", tokenInfo.UserID)
-	fmt.Printf("TokenInfo ClientID: %s\n", tokenInfo.ClientID)
-	fmt.Printf("TokenInfo Scope: %s\n", tokenInfo.Scope)
-	fmt.Printf("TokenInfo SubjectType: %s\n", tokenInfo.SubjectType)
-	fmt.Printf("TokenInfo Issuer: %s\n", tokenInfo.Iss)
-	fmt.Printf("TokenInfo Exp: %d\n", tokenInfo.Exp)
+	fmt.Fprintf(out, "TokenInfo Active: %v\n", tokenInfo.Active)
+	fmt.Fprintf(out, "TokenInfo UserID: %s\n", tokenInfo.UserID)
+	fmt.Fprintf(out, "TokenInfo ClientID: %s\n", tokenInfo.ClientID)
+	fmt.Fprintf(out, "TokenInfo Scope: %s\n", tokenInfo.Scope)
+	fmt.Fprintf(out, "TokenInfo SubjectType: %s\n", tokenInfo.SubjectType)
+	fmt.Fprintf(out, "TokenInfo Issuer: %s\n", tokenInfo.Iss)
+	fmt.Fprintf(out, "TokenInfo Exp: %d\n", tokenInfo.Exp)
+	fmt.Fprintf(out, "TokenInfo Audience: %v\n", tokenInfo.Audience)
 }

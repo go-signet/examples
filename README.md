@@ -101,6 +101,20 @@ cd go-m2m
 go run main.go
 ```
 
+### Resource indicators (sdk-go v1.2.0)
+
+[Go CLI](go-cli/README.md#request-a-token-for-an-api-resources) and
+[Go M2M](go-m2m/README.md#request-a-token-for-an-api-resources) accept optional
+space-separated `RESOURCES` and demonstrate `WithResources(...)`. The resource
+identifies the intended API/audience; scopes identify requested permissions.
+Configure Signet's client resource allowlist, and have the receiving API enforce
+the matching `EXPECTED_AUDIENCE` (see `go-jwks`).
+
+For M2M, set `RESOURCES=https://api.example.com` and
+`API_URL=http://localhost:8088/api/data` to request a targeted token and call the
+local JWKS-protected API. The linked walkthrough includes success and rejection
+cases. Leaving both variables unset preserves the original userinfo example.
+
 ### Python M2M
 
 Uses the Signet Python SDK with auto-refreshing `BearerAuth` for httpx.
