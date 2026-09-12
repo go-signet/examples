@@ -21,12 +21,17 @@ Multi-language usage examples for Signet authentication (Go, Python, TypeScript,
 | [go-jwks](go-jwks/)             | API protection (offline) | JWKS public-key validation   | Go         | Go 1.26+         |
 | [go-jwks-multi](go-jwks-multi/) | API protection (N iss)   | JWKS validation (multi)      | Go         | Go 1.26+         |
 | [go-oidc](go-oidc/)             | Web login (no SDK)       | Auth Code (coreos/go-oidc)   | Go         | Go 1.25+         |
+| [go-obo](go-obo/)               | Web/CLI → API A → API B  | PKCE + On-behalf-of          | Go         | Go 1.26+, Signet OBO |
 | [vue-spa](vue-spa/)             | Web login (SPA)          | Auth Code + PKCE (browser)   | TypeScript | Bun 1.2+         |
 | [kong-mcp](kong-mcp/)           | MCP gateway (Kong)       | PKCE entry + JWKS validation | Go         | Go 1.25+, Kong   |
 
 ## Environment Setup
 
-All examples except [kong-mcp](kong-mcp/) require `SIGNET_URL` and `CLIENT_ID` ([vue-spa](vue-spa/) uses the `VITE_`-prefixed equivalents — see its README). M2M examples additionally require `CLIENT_SECRET`. The [go-bearerauth](go-bearerauth/) server also requires `EXPECTED_AUDIENCE` unless its explicit audience opt-out is enabled, and its client requires `BEARER_TOKEN`. The kong-mcp gateway reads no environment variables — configure it via the plugin block in [`kong-mcp/kong.yml`](kong-mcp/kong.yml) (`issuer`, `gateway_origin`, `jwks_uri`, ...).
+The [go-obo](go-obo/) example uses `SIGNET_URL` plus separate Web, CLI, API A and
+API B client settings instead of a shared `CLIENT_ID`; start with its
+[environment template](go-obo/.env.example) and [setup guide](go-obo/README.md).
+
+All examples except [kong-mcp](kong-mcp/) and [go-obo](go-obo/) require `SIGNET_URL` and `CLIENT_ID` ([vue-spa](vue-spa/) uses the `VITE_`-prefixed equivalents — see its README). M2M examples additionally require `CLIENT_SECRET`. The [go-bearerauth](go-bearerauth/) server also requires `EXPECTED_AUDIENCE` unless its explicit audience opt-out is enabled, and its client requires `BEARER_TOKEN`. The kong-mcp gateway reads no environment variables — configure it via the plugin block in [`kong-mcp/kong.yml`](kong-mcp/kong.yml) (`issuer`, `gateway_origin`, `jwks_uri`, ...).
 
 Set via environment variables:
 
@@ -199,6 +204,29 @@ go run main.go
 # then open http://localhost:8080/
 ```
 
+## On-behalf-of — Go Web, CLI and delegated APIs
+
+[go-obo](go-obo/) demonstrates user delegation across a complete Go Web/CLI →
+API A → API B flow using sdk-go v1.2.0. Signet's combined consent grants frontend
+access to A and delegated access to B in one screen. A exchanges the user's
+source token; B validates the signed user/actor/audience/scope and performs
+uncached online introspection before returning that user's fictional orders.
+
+```bash
+cd go-obo
+cp .env.example .env  # Follow the README to configure Signet and client IDs.
+# Run in separate terminals from go-obo/:
+go run ./cmd/api-b
+go run ./cmd/api-a
+go run ./cmd/web      # Open http://127.0.0.1:8090/
+go run ./cmd/cli      # Optional browser PKCE client using the same APIs
+```
+
+Includes [English](go-obo/README.md) and [繁體中文](go-obo/README.zh-TW.md) guides,
+policy/bundle setup, negative tests and revocation verification instructions.
+Requires Signet with OBO and combined consent (PRs #66 and #81). No frontend
+JavaScript toolchain is needed.
+
 ## SPA Web Login (Vue 3, browser-only)
 
 The public-client counterpart to [go-oidc](go-oidc/): a **Vue 3 + Vite +
@@ -242,6 +270,8 @@ docker compose up --build                   # demo stack: Kong + stub MCP upstre
 - **Device Code ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628))** — For headless/SSH environments. The user authenticates on a separate device by visiting a URL and entering a code.
 - **Client Credentials** — Service-to-service auth with a shared secret. No user involved.
 - **Bearer Token Validation** — Server-side verification of credentials sent in the `Authorization` header: online tokeninfo/introspection, offline JWT/JWKS, or the mixed `bearerauth` model.
+
+- **On-behalf-of (OBO)** — A confidential API exchanges a user access token for a short-lived token addressed to a downstream API, preserving the user and recording the acting client. Requires a delegation policy and both user consents; see [go-obo](go-obo/).
 
 ## Troubleshooting
 

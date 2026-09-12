@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Orders · Signet OBO</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#17352f;background:#f5f3ea}body{margin:0}main{max-width:850px;margin:8vh auto;padding:24px}header{border-bottom:2px solid #17352f;padding-bottom:24px}small{letter-spacing:.12em;text-transform:uppercase}h1{font-family:Georgia,serif;font-weight:400;font-size:clamp(2.5rem,6vw,4rem);margin:18px 0}p{line-height:1.6}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}button,.button{display:inline-block;background:#17352f;color:white;padding:12px 18px;border:1px solid #17352f;border-radius:4px;font:inherit;text-decoration:none;cursor:pointer}button.secondary{background:transparent;color:#17352f}button:focus-visible,a:focus-visible{outline:3px solid #bd681a;outline-offset:4px}pre{background:#fff;padding:20px;overflow:auto;border:1px solid #d4d8ce;font-size:.85rem;line-height:1.6}footer{margin-top:40px;font-size:.875rem;color:#4e655f}code{overflow-wrap:anywhere}
+</style></head>
+<body><main><header><small>Signet / On-behalf-of example</small><h1>Your orders.<br>With your permission.</h1><p>API A calls the orders service on behalf of the signed-in user. The orders service checks both the user and the acting client.</p></header>
+{{if .Session}}
+<p>Signed in as <code>{{.Session.Login.Identity.Subject}}</code></p>
+<div class="actions"><form method="post" action="/orders"><input type="hidden" name="csrf" value="{{.Session.CSRF}}"><button>Call API A · Read my orders</button></form><form method="post" action="/logout"><input type="hidden" name="csrf" value="{{.Session.CSRF}}"><button class="secondary">Sign out locally</button></form></div>
+{{if .Result}}<h2>Orders and verified identity</h2><pre>{{.Result}}</pre>{{end}}
+<p>Your local session expires at {{.Session.Login.Identity.ExpiresAt.Format "15:04:05 MST"}}. Sign in again after it expires.</p>
+{{else}}<p>Sign in and approve frontend access and downstream access on your behalf in Signet.</p><a class="button" href="/login">Sign in with Signet</a>{{end}}
+<footer>Fictional orders for a local integration example. Tokens stay on the server. Local sign-out does not revoke Signet consent; manage grants on your Signet account authorizations page.</footer>
+</main></body></html>
