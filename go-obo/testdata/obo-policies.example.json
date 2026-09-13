@@ -1,0 +1,11 @@
+[
+  {
+    "id": "orders-a-to-b",
+    "actor_client_id": "REPLACE_WITH_API_A_CLIENT_ID",
+    "inbound_audience": "https://api-a.example.com",
+    "target_resource": "https://api-b.example.com",
+    "scope_mapping": {
+      "orders.read": ["orders.delegate.read"]
+    }
+  }
+]
