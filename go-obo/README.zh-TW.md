@@ -179,7 +179,7 @@ go run ./cmd/web
 ```
 
 瀏覽 **http://127.0.0.1:8090/**，一致使用 `127.0.0.1`，不要混用 `localhost`。
-按 **Sign in with Signet**、批准兩組同意，再按 **Call API A · Read my orders**。
+按 **Sign in with Signet**、批准兩組同意，再按 **Read my orders**。
 CLI 使用相同 A／B：
 
 ```bash

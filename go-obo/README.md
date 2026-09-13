@@ -195,8 +195,7 @@ go run ./cmd/web
 ```
 
 Visit **http://127.0.0.1:8090/** (use this host consistently, not `localhost`).
-Click **Sign in with Signet**, approve both groups, then **Call API A · Read my
-orders**. To try the CLI against the same A/B services:
+Click **Sign in with Signet**, approve both groups, then **Read my orders**. To try the CLI against the same A/B services:
 
 ```bash
 # Terminal 4
