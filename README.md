@@ -224,7 +224,7 @@ go run ./cmd/cli      # Optional browser PKCE client using the same APIs
 
 Includes [English](go-obo/README.md) and [繁體中文](go-obo/README.zh-TW.md) guides,
 policy/bundle setup, negative tests and revocation verification instructions.
-Requires Signet with OBO and combined consent (PRs #66 and #81). No frontend
+Requires Signet with OBO and combined consent. No frontend
 JavaScript toolchain is needed.
 
 ## SPA Web Login (Vue 3, browser-only)

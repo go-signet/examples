@@ -7,11 +7,8 @@
 Go Web 或 public Go CLI 登入，API A 用自己的憑證交換 OBO token，API B 驗證
 使用者、代理 client、audience、scope 與即時有效性，再回傳該使用者的虛構訂單。
 
-可執行主流程需要包含 [PR #66](https://github.com/go-signet/signet/pull/66) 與
-[PR #81](https://github.com/go-signet/signet/pull/81) 的 Signet。兩者於 2026-09-12
-合併，已核對參考 commit 為 `b7bf2f3e3ca4ebc7addca944dce46bd26462a9e6`。
-使用包含此 commit 的版本，先完成 migration，並設定 RS256／ES256 簽章與公開 JWKS。
-完整契約見[固定版本上游文件](https://github.com/go-signet/signet/blob/b7bf2f3e3ca4ebc7addca944dce46bd26462a9e6/docs/ON_BEHALF_OF_FLOW.md)。
+可執行主流程需要支援 OBO token exchange 與合併同意的 Signet。
+執行範例前，請先完成資料庫 migration，並設定 RS256／ES256 簽章與可公開存取的 JWKS endpoint。
 
 ## 元件與流程
 
@@ -360,7 +357,7 @@ Signet SSO；撤銷請使用 Signet 帳號授權頁。
 與各程序獨立 secrets。Web 最多 1,000 sessions、1,000 pending logins，每分鐘清理，
 屬單程序示範 store，不是多副本正式 session 儲存方案；未宣稱正式容量／效能。
 
-## 附錄：PR #66 file policy
+## 附錄：檔案式委派政策
 
 [`testdata/obo-policies.example.json`](testdata/obo-policies.example.json)
 提供對等 file policy。替換 A client ID，掛載到 Signet 後設定：
@@ -373,8 +370,7 @@ OBO_COMBINED_CONSENT_ENABLED=false
 ```
 
 File/database 互斥，file policy 在啟動時載入。這是設定參考，**不是切換 env 即可
-完整跑通的相容模式**：沒有 #81 合併同意時，同一使用者須分別同意 F→A 與 A→B。
-本例 A 沒有獨立 consent callback，請依上游
-[獨立同意指南](https://github.com/go-signet/signet/blob/b7bf2f3e3ca4ebc7addca944dce46bd26462a9e6/internal/templates/docs/zh-TW/on-behalf-of.md)
-先完成另一個互動流程。管理員 policy 或 SQL 造資料不取代使用者同意；不要把給 B
+完整跑通的相容模式**：沒有合併同意時，同一使用者須分別同意 F→A 與 A→B。
+本例 A 沒有獨立 consent callback，使用 token exchange 前，須另行實作並完成該互動同意流程。
+管理員 policy 或 SQL 造資料不取代使用者同意；不要把給 B
 的 setup token 當 A 的 assertion，也不要在不同副本混用 policy 模式。

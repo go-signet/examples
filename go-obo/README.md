@@ -9,11 +9,9 @@ access token for an OBO token addressed to API B. B verifies the user, actor,
 audience and scope, checks current token validity online, and returns fictional
 orders owned by that user.
 
-The runnable path requires Signet including [PR #66](https://github.com/go-signet/signet/pull/66)
-and [PR #81](https://github.com/go-signet/signet/pull/81), both merged September 12, 2026. A known reference commit is `b7bf2f3e3ca4ebc7addca944dce46bd26462a9e6`.
-Use a version containing that commit, with migrations completed and RS256/ES256
-signing plus public JWKS. See the pinned
-[upstream OBO contract](https://github.com/go-signet/signet/blob/b7bf2f3e3ca4ebc7addca944dce46bd26462a9e6/docs/ON_BEHALF_OF_FLOW.md).
+The runnable path requires Signet with OBO token exchange and combined consent
+support. Complete the database migrations and configure RS256/ES256 signing
+with a publicly accessible JWKS endpoint before running this example.
 
 ## What runs where
 
@@ -400,7 +398,7 @@ injection. Web memory sessions (maximum 1,000 sessions and 1,000 pending logins,
 minute cleanup) are single-process demonstration storage, not shared production
 sessions. No claims about production capacity or deployment are made.
 
-## Appendix: PR #66 file policies
+## Appendix: File-based delegation policies
 
 [`testdata/obo-policies.example.json`](testdata/obo-policies.example.json)
 contains the equivalent file-mode delegation policy. Replace A's client ID and
@@ -415,10 +413,9 @@ OBO_COMBINED_CONSENT_ENABLED=false
 
 File/database sources are mutually exclusive; file policies load at startup.
 This is a configuration reference, **not** an automatic compatibility switch:
-without #81 combined consent, the same user must separately consent to F→A and
+without combined consent, the same user must separately consent to F→A and
 A→B. This example's A has no independent authorization-code consent callback.
-Arrange that separate flow as described in the upstream
-[independent consent guide](https://github.com/go-signet/signet/blob/b7bf2f3e3ca4ebc7addca944dce46bd26462a9e6/internal/templates/docs/on-behalf-of.md)
-before using the exchange. An administrator policy or SQL-created data cannot
+Implement and complete that separate interactive consent flow before using
+the exchange. An administrator policy or SQL-created data cannot
 replace actual user consent. Never use a setup token addressed to B as the A
 assertion, and do not mix policy modes across replicas.
