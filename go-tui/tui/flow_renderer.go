@@ -94,6 +94,8 @@ func (r *FlowRenderer) NextSpinner() string {
 }
 
 // RenderHeader renders and prints the header
+//
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (r *FlowRenderer) RenderHeader() {
 	// Clear screen and move to top
 	fmt.Print(ansiClearScreen)
@@ -140,6 +142,8 @@ func (r *FlowRenderer) checkResize() bool {
 }
 
 // UpdateDisplay updates the display with current state
+//
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (r *FlowRenderer) UpdateDisplay() {
 	// Detect terminal resize — promotes to a full redraw when size changed.
 	resized := r.checkResize()
@@ -196,6 +200,8 @@ func (r *FlowRenderer) UpdateDisplay() {
 }
 
 // updateSpinnerOnly updates only the spinner character without redrawing everything
+//
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (r *FlowRenderer) updateSpinnerOnly() {
 	if r.inProgressStepIdx < 0 {
 		return

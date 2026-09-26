@@ -33,7 +33,6 @@ import (
 	"time"
 
 	"github.com/go-signet/sdk-go/jwksauth"
-
 	"github.com/joho/godotenv"
 )
 
@@ -77,7 +76,10 @@ func main() {
 	// Domain/ServiceAccount/Project reject reasons are server-logged only —
 	// clients see a generic 401. Scope failures are reported separately as
 	// 403 insufficient_scope with details in the WWW-Authenticate header.
-	mux.Handle("/api/profile", jwksauth.Middleware(v, jwksauth.AccessRule{})(http.HandlerFunc(profileHandler)))
+	mux.Handle(
+		"/api/profile",
+		jwksauth.Middleware(v, jwksauth.AccessRule{})(http.HandlerFunc(profileHandler)),
+	)
 	mux.Handle("/api/data", jwksauth.Middleware(v, jwksauth.AccessRule{
 		Scopes: []string{"email"},
 	})(http.HandlerFunc(dataHandler)))
@@ -117,7 +119,11 @@ func main() {
 	log.Fatal(srv.ListenAndServe())
 }
 
-func newVerifier(issuerURL, audience string, skipAudience bool, privateClaimPrefix string) (*jwksauth.Verifier, error) {
+func newVerifier(
+	issuerURL, audience string,
+	skipAudience bool,
+	privateClaimPrefix string,
+) (*jwksauth.Verifier, error) {
 	// Bound discovery so a stalled issuer doesn't hang startup forever.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

@@ -14,6 +14,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -44,18 +45,19 @@ func main() {
 		apiURL:       strings.TrimSpace(os.Getenv("API_URL")),
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	if err := run(ctx, cfg, os.Stdout); err != nil {
+	err := run(ctx, cfg, os.Stdout)
+	cancel()
+	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func run(ctx context.Context, cfg config, out io.Writer) error {
 	if cfg.signetURL == "" || cfg.clientID == "" || cfg.clientSecret == "" {
-		return fmt.Errorf("set SIGNET_URL, CLIENT_ID, and CLIENT_SECRET")
+		return errors.New("set SIGNET_URL, CLIENT_ID, and CLIENT_SECRET")
 	}
 	if len(cfg.resources) > 0 && cfg.apiURL == "" {
-		return fmt.Errorf("set API_URL when requesting RESOURCES")
+		return errors.New("set API_URL when requesting RESOURCES")
 	}
 
 	// 1. Auto-discover endpoints
@@ -91,7 +93,7 @@ func run(ctx context.Context, cfg config, out io.Writer) error {
 		targetURL = endpoints.UserinfoURL
 	}
 	if targetURL == "" {
-		return fmt.Errorf("set API_URL or use an issuer advertising userinfo_endpoint")
+		return errors.New("set API_URL or use an issuer advertising userinfo_endpoint")
 	}
 	httpClient := ts.HTTPClient()
 	// The token transport attaches a credential to every request. Do not let

@@ -240,7 +240,10 @@ func main() {
 	// JWT_PRIVATE_CLAIM_PREFIX must agree byte-for-byte with the resource
 	// server's matching env var; an empty / whitespace-only value falls
 	// back to the SDK default.
-	privateClaimPrefix := def(strings.TrimSpace(os.Getenv("JWT_PRIVATE_CLAIM_PREFIX")), defaultPrivateClaimPrefix)
+	privateClaimPrefix := def(
+		strings.TrimSpace(os.Getenv("JWT_PRIVATE_CLAIM_PREFIX")),
+		defaultPrivateClaimPrefix,
+	)
 
 	configs := []struct {
 		name string
@@ -278,8 +281,10 @@ func main() {
 	for _, b := range bounds {
 		urls = append(urls, b.is.baseURL)
 	}
-	log.Printf("Private claim prefix: %[1]q (mints %[1]s_domain / %[1]s_service_account / %[1]s_project)",
-		privateClaimPrefix)
+	log.Printf(
+		"Private claim prefix: %[1]q (mints %[1]s_domain / %[1]s_service_account / %[1]s_project)",
+		privateClaimPrefix,
+	)
 	log.Println("─── resource server env (copy-paste) ──────────────────────────")
 	log.Printf("TRUSTED_ISSUERS=%s", strings.Join(urls, ","))
 	log.Printf("EXPECTED_AUDIENCE=https://api.example.com")

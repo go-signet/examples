@@ -64,9 +64,9 @@ func main() {
 		os.Interrupt,
 		syscall.SIGTERM,
 	)
-	defer stop()
-
-	if err := run(ctx, cfg, logger); err != nil {
+	err = run(ctx, cfg, logger)
+	stop()
+	if err != nil {
 		logger.Printf("server stopped category=error: %v", err)
 		os.Exit(1)
 	}

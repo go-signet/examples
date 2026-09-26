@@ -22,6 +22,7 @@ func NewSimpleManager() *SimpleManager {
 	return &SimpleManager{}
 }
 
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (m *SimpleManager) ShowHeader(clientMode, serverURL, clientID string) {
 	fmt.Printf("=== Signet Hybrid CLI (Browser + Device Code Flow) ===\n")
 	fmt.Printf("Client mode : %s\n", clientMode)
@@ -30,6 +31,7 @@ func (m *SimpleManager) ShowHeader(clientMode, serverURL, clientID string) {
 	fmt.Println()
 }
 
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (m *SimpleManager) ShowFlowSelection(method string) {
 	fmt.Printf("Auth method : %s\n", method)
 }
@@ -76,6 +78,7 @@ func (m *SimpleManager) RunBrowserFlow(
 	}
 }
 
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (m *SimpleManager) handleBrowserUpdate(update FlowUpdate) {
 	switch update.Type {
 	case StepStart:
@@ -155,6 +158,7 @@ func (m *SimpleManager) RunDeviceFlow(
 	}
 }
 
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (m *SimpleManager) handleDeviceUpdate(update FlowUpdate) {
 	switch update.Step {
 	case 1:
@@ -203,6 +207,7 @@ func (m *SimpleManager) handleDeviceUpdate(update FlowUpdate) {
 	}
 }
 
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (m *SimpleManager) ShowTokenInfo(storage *TokenStorage) {
 	fmt.Printf("\n========================================\n")
 	fmt.Printf("Current Token Info:\n")
@@ -230,6 +235,7 @@ func (m *SimpleManager) ShowTokenInfo(storage *TokenStorage) {
 	fmt.Printf("========================================\n")
 }
 
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (m *SimpleManager) ShowVerification(success bool, info string) {
 	fmt.Println("\nVerifying token with server...")
 	if success {
@@ -242,6 +248,7 @@ func (m *SimpleManager) ShowVerification(success bool, info string) {
 	}
 }
 
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (m *SimpleManager) ShowStatus(update StatusUpdate) {
 	switch update.Event {
 	case EventExistingTokens:
@@ -278,6 +285,7 @@ func (m *SimpleManager) ShowStatus(update StatusUpdate) {
 	}
 }
 
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (m *SimpleManager) ShowUserInfo(success bool, info string) {
 	fmt.Println("\nFetching OIDC UserInfo claims...")
 	if success {
@@ -291,6 +299,8 @@ func (m *SimpleManager) ShowUserInfo(success bool, info string) {
 }
 
 // displayError formats and displays an error message with recommendations
+//
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func (m *SimpleManager) displayError(errMsg string) {
 	// Parse the error
 	parsed := parseError(errors.New(errMsg))

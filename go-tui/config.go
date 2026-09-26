@@ -17,11 +17,10 @@ import (
 	"strings"
 	"time"
 
+	retry "github.com/appleboy/go-httpretry"
 	"github.com/go-signet/sdk-go/credstore"
 	"github.com/go-signet/sdk-go/discovery"
 	"github.com/go-signet/sdk-go/oauth"
-
-	retry "github.com/appleboy/go-httpretry"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"

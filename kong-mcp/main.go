@@ -110,7 +110,10 @@ func (conf *Config) setup() error {
 			}
 		}
 		if len(missing) > 0 {
-			conf.setupErr = fmt.Errorf("missing required plugin config: %s", strings.Join(missing, ", "))
+			conf.setupErr = fmt.Errorf(
+				"missing required plugin config: %s",
+				strings.Join(missing, ", "),
+			)
 			return
 		}
 
@@ -152,7 +155,10 @@ func (conf *Config) setup() error {
 		// could then never match. Reject loudly instead. (A trailing slash is
 		// NOT rejected: some ASes — e.g. Auth0 — legitimately use one, and it
 		// works as long as the token's iss and the metadata issuer carry it too.)
-		if parsed, err := url.Parse(conf.Issuer); err == nil && (parsed.RawQuery != "" || parsed.Fragment != "") {
+		if parsed, err := url.Parse(
+			conf.Issuer,
+		); err == nil &&
+			(parsed.RawQuery != "" || parsed.Fragment != "") {
 			invalid = append(invalid, "issuer must not contain a query or fragment (RFC 8414)")
 		}
 		if conf.LeewaySeconds < 0 {
@@ -164,7 +170,10 @@ func (conf *Config) setup() error {
 		}
 
 		conf.prmPath = wellKnownPrefix + conf.ResourcePath
-		conf.bearerMeta = fmt.Sprintf(`Bearer resource_metadata="%s"`, conf.GatewayOrigin+conf.prmPath)
+		conf.bearerMeta = fmt.Sprintf(
+			`Bearer resource_metadata="%s"`,
+			conf.GatewayOrigin+conf.prmPath,
+		)
 		conf.requiredScopeStr = strings.Join(conf.RequiredScopes, " ")
 
 		opts := []jwt.ParserOption{
@@ -376,11 +385,26 @@ func fetchJWKSURI(issuer string) (string, error) {
 			continue
 		}
 		if meta.Issuer != issuer {
-			errs = append(errs, fmt.Errorf("%s: metadata issuer %q does not match configured issuer %q", mdURL, meta.Issuer, issuer))
+			errs = append(
+				errs,
+				fmt.Errorf(
+					"%s: metadata issuer %q does not match configured issuer %q",
+					mdURL,
+					meta.Issuer,
+					issuer,
+				),
+			)
 			continue
 		}
 		if !isAbsHTTPURL(meta.JWKSURI) {
-			errs = append(errs, fmt.Errorf("%s: metadata jwks_uri %q is not an absolute http(s) URL", mdURL, meta.JWKSURI))
+			errs = append(
+				errs,
+				fmt.Errorf(
+					"%s: metadata jwks_uri %q is not an absolute http(s) URL",
+					mdURL,
+					meta.JWKSURI,
+				),
+			)
 			continue
 		}
 		return meta.JWKSURI, nil
@@ -424,7 +448,13 @@ func discoverJWKSURI(issuer string) (string, error) {
 	uri, err := fetchJWKSURI(issuer)
 	if err != nil {
 		if ok { // stale entry: extend it rather than failing live traffic
-			slog.Error("AS metadata refresh failed; keeping cached jwks_uri", "issuer", issuer, "error", err)
+			slog.Error(
+				"AS metadata refresh failed; keeping cached jwks_uri",
+				"issuer",
+				issuer,
+				"error",
+				err,
+			)
 			uri = e.jwksURI
 		} else {
 			return "", err
@@ -624,9 +654,16 @@ func (conf *Config) Access(kong *pdk.PDK) {
 	}
 
 	if len(conf.RequiredScopes) > 0 && !hasAllScopes(scope, conf.RequiredScopes) {
-		challenge(403,
-			fmt.Sprintf(`%s, error="insufficient_scope", scope="%s"`, conf.bearerMeta, conf.requiredScopeStr),
-			"insufficient_scope", "requires scope: "+conf.requiredScopeStr)
+		challenge(
+			403,
+			fmt.Sprintf(
+				`%s, error="insufficient_scope", scope="%s"`,
+				conf.bearerMeta,
+				conf.requiredScopeStr,
+			),
+			"insufficient_scope",
+			"requires scope: "+conf.requiredScopeStr,
+		)
 		return
 	}
 
