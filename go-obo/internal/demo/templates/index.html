@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>On-behalf-of playground | Signet</title>
+  <style>
+    :root {
+      --canvas: #edf2f8;
+      --paper: #ffffff;
+      --ink: #192e54;
+      --muted: #536580;
+      --line: #cbd6e5;
+      --accent: #2854d8;
+      --positive: #287657;
+      font-family: "Avenir Next", Avenir, "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: var(--canvas);
+      font-synthesis: none;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    a { color: var(--accent); }
+    button, summary, a { -webkit-tap-highlight-color: transparent; }
+    button { font: inherit; }
+    a:focus-visible, button:focus-visible, summary:focus-visible, pre:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 5px;
+    }
+    .skip-link { position: absolute; top: -80px; left: 20px; padding: 12px; background: white; z-index: 2; }
+    .skip-link:focus { top: 12px; }
+    .shell { width: min(1160px, calc(100% - 80px)); margin-inline: auto; }
+    .masthead { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 28px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; font-weight: 700; font-size: 23px; letter-spacing: -.8px; }
+    .brand-mark { width: 34px; height: 34px; color: var(--accent); }
+    .masthead-note { font-size: 13px; color: var(--muted); }
+    main { padding-top: 64px; }
+    .intro { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, .85fr); gap: 64px; align-items: start; }
+    .breadcrumb { margin: 0 0 22px; color: var(--muted); font-size: 14px; }
+    h1 { margin: 0; font-size: clamp(42px, 5.3vw, 66px); line-height: 1.06; letter-spacing: -2.7px; font-weight: 600; }
+    .lead { max-width: 49ch; margin: 24px 0 0; color: var(--muted); font-size: 17px; line-height: 1.75; }
+    .route { margin-top: 40px; }
+    .route-caption { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 16px; font-size: 13px; color: var(--muted); }
+    .route-caption strong { font-weight: 600; color: var(--ink); }
+    .route-steps { display: grid; grid-template-columns: 1fr 28px 1fr 28px 1fr; align-items: start; padding: 0; margin: 0; list-style: none; }
+    .route-stop { min-width: 0; }
+    .route-symbol { display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid #a8bbd5; border-radius: 12px; background: var(--paper); color: var(--accent); font-size: 19px; font-weight: 600; }
+    .route-stop:nth-child(3) .route-symbol { background: var(--accent); border-color: var(--accent); color: white; }
+    .route-stop strong { display: block; margin-top: 13px; font-size: 14px; font-weight: 600; }
+    .route-stop span { display: block; margin-top: 5px; font-size: 12px; line-height: 1.5; color: var(--muted); }
+    .route-arrow { display: flex; align-items: center; height: 46px; color: #6c82a1; }
+    .route-arrow svg { width: 22px; height: 16px; }
+    .session-panel { padding: 28px; background: var(--paper); border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 3px 3px 14px 14px; box-shadow: 0 12px 30px -22px #192e5480; }
+    .status { display: inline-flex; gap: 8px; align-items: center; margin: 0 0 24px; color: var(--muted); font-size: 12px; font-weight: 600; }
+    .status-dot { width: 7px; height: 7px; border: 1.5px solid #7587a1; border-radius: 50%; }
+    .status-active { color: var(--positive); }
+    .status-active .status-dot { background: var(--positive); border-color: var(--positive); }
+    .session-panel h2 { margin: 0 0 12px; font-size: 25px; line-height: 1.25; font-weight: 600; letter-spacing: -.6px; }
+    .panel-copy { font-size: 14px; line-height: 1.7; color: var(--muted); margin: 0 0 24px; }
+    .button { width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--accent); border-radius: 6px; padding: 12px 16px; background: var(--accent); color: white; text-decoration: none; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .button:hover { background: #1f43b0; border-color: #1f43b0; }
+    .button svg { width: 17px; height: 17px; flex: none; }
+    .secondary { width: 100%; min-height: 44px; margin-top: 9px; padding: 10px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+    .secondary:hover { color: var(--ink); }
+    .panel-footnote { margin: 16px 0 0; text-align: center; font-size: 12px; line-height: 1.6; color: var(--muted); }
+    .identity { margin: 20px 0 24px; }
+    .identity-row { padding-block: 11px; border-top: 1px solid #e0e7f0; }
+    .identity dt { color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+    .identity dd { margin: 0; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+    code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    .identity code { font-size: 12px; }
+    .workspace { margin-top: 58px; border-top: 1px solid var(--line); }
+    .workspace-heading { padding-block: 24px; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+    .workspace-heading h2 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -.3px; }
+    .endpoint { font-size: 12px; color: var(--muted); }
+    .endpoint b { color: var(--accent); margin-right: 8px; font-family: "Avenir Next", Avenir, sans-serif; font-size: 11px; }
+    .empty-state { display: flex; align-items: center; gap: 24px; padding: 32px; border: 1px dashed #aebfd6; border-radius: 8px; }
+    .empty-symbol { width: 44px; height: 44px; flex: none; color: #6880a1; }
+    .empty-state h3 { margin: 0 0 6px; font-size: 15px; font-weight: 600; }
+    .empty-state p { max-width: 65ch; margin: 0; font-size: 14px; line-height: 1.7; color: var(--muted); }
+    .response { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .response summary { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 18px 22px; font-size: 14px; font-weight: 600; list-style: none; }
+    .response summary::-webkit-details-marker { display: none; }
+    .response summary::before { content: "+"; font-size: 20px; width: 15px; color: var(--muted); }
+    .response[open] summary::before { content: "−"; }
+    .response summary span { margin-left: auto; color: var(--positive); font-size: 12px; font-weight: 500; }
+    .response pre { max-height: 520px; overflow: auto; margin: 0; border-top: 1px solid var(--line); padding: 24px; background: #f7f9fd; color: #233c66; font-size: 12px; line-height: 1.8; tab-size: 2; }
+    .response-note { margin: 12px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .explanation { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; padding-block: 32px 40px; }
+    .explanation h3 { font-size: 13px; font-weight: 600; margin: 0 0 8px; }
+    .explanation p { font-size: 13px; color: var(--muted); line-height: 1.75; margin: 0; max-width: 64ch; }
+    footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid var(--line); padding-block: 20px 28px; font-size: 12px; line-height: 1.7; color: var(--muted); }
+    footer p { margin: 0; }
+    @media (max-width: 900px) {
+      .shell { width: calc(100% - 48px); }
+      .intro { gap: 32px; grid-template-columns: minmax(0, 1fr) minmax(280px, .85fr); }
+      h1 { font-size: 48px; }
+      .session-panel { padding: 24px; }
+    }
+    @media (max-width: 680px) {
+      .shell { width: calc(100% - 36px); }
+      .masthead { padding-block: 20px; }
+      .masthead-note { max-width: 130px; text-align: right; font-size: 12px; }
+      main { padding-top: 34px; }
+      .intro { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+      h1 { font-size: clamp(40px, 10vw, 54px); letter-spacing: -1.8px; }
+      .lead { font-size: 16px; margin-top: 20px; }
+      .route { margin-top: 28px; }
+      .route-caption { font-size: 12px; }
+      .route-steps { grid-template-columns: 1fr 20px 1fr 20px 1fr; }
+      .route-arrow svg { width: 16px; }
+      .session-panel { padding: 24px; }
+      .workspace { margin-top: 34px; }
+      .workspace-heading { align-items: flex-start; flex-direction: column; gap: 8px; padding-block: 20px; }
+      .empty-state { padding: 24px 20px; gap: 16px; align-items: flex-start; }
+      .empty-symbol { width: 30px; height: 30px; }
+      .response summary { padding: 16px; flex-wrap: wrap; }
+      .response summary span { font-size: 11px; }
+      .response pre { padding: 18px; font-size: 11px; }
+      .explanation { grid-template-columns: 1fr; gap: 22px; padding-block: 28px; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .button { transition: background-color 120ms ease, border-color 120ms ease; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#playground">Skip to playground</a>
+  <div class="shell">
+    <header class="masthead">
+      <a class="brand" href="/" aria-label="Signet playground home">
+        <svg class="brand-mark" viewBox="0 0 34 34" fill="none" aria-hidden="true"><rect width="34" height="34" rx="9" fill="currentColor"/><path d="M23 10H14a4 4 0 0 0 0 8h6a3 3 0 0 1 0 6H11" stroke="white" stroke-width="3" stroke-linecap="round"/></svg>
+        Signet
+      </a>
+      <span class="masthead-note">Go integration playground</span>
+    </header>
+    <main id="playground">
+      <div class="intro">
+        <section aria-labelledby="page-title">
+          <p class="breadcrumb">On-behalf-of / Orders example</p>
+          <h1 id="page-title">One user.<br>Two services.</h1>
+          <p class="lead">Follow a request from sign-in to your orders. API A calls API B on your behalf, carrying your identity and only the permissions you approved.</p>
+          <div class="route" aria-label="Delegation path">
+            <div class="route-caption"><strong>The request path</strong><span>Issued by Signet</span></div>
+            <ol class="route-steps" aria-label="Frontend to API A to API B">
+              <li class="route-stop"><div class="route-symbol" aria-hidden="true">F</div><strong>Frontend</strong><span>Sign in as you</span></li>
+              <li class="route-arrow" aria-hidden="true"><svg viewBox="0 0 24 16" fill="none"><path d="M1 8h20m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></li>
+              <li class="route-stop"><div class="route-symbol" aria-hidden="true">A</div><strong>Middle API</strong><span>Exchange for B</span></li>
+              <li class="route-arrow" aria-hidden="true"><svg viewBox="0 0 24 16" fill="none"><path d="M1 8h20m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></li>
+              <li class="route-stop"><div class="route-symbol" aria-hidden="true">B</div><strong>Orders API</strong><span>Check and respond</span></li>
+            </ol>
+          </div>
+        </section>
+        <section class="session-panel" aria-labelledby="session-title">
+          {{if .Session}}
+          <p class="status status-active"><span class="status-dot" aria-hidden="true"></span>Signed in</p>
+          <h2 id="session-title">Ready to make a request.</h2>
+          <p class="panel-copy">Read your orders through API A to try the complete delegation flow.</p>
+          <dl class="identity">
+            <div class="identity-row"><dt>User subject</dt><dd><code>{{.Session.Login.Identity.Subject}}</code></dd></div>
+            <div class="identity-row"><dt>Source permissions</dt><dd><code>{{.Session.Login.Identity.Scope}}</code></dd></div>
+            <div class="identity-row"><dt>Session expires</dt><dd><time datetime="{{.Session.Login.Identity.ExpiresAt.Format "2006-01-02T15:04:05Z07:00"}}">{{.Session.Login.Identity.ExpiresAt.Format "15:04:05 MST"}}</time></dd></div>
+          </dl>
+          <form method="post" action="/orders">
+            <input type="hidden" name="csrf" value="{{.Session.CSRF}}">
+            <button class="button" type="submit">Read my orders</button>
+          </form>
+          <form method="post" action="/logout">
+            <input type="hidden" name="csrf" value="{{.Session.CSRF}}">
+            <button class="secondary" type="submit">Sign out locally</button>
+          </form>
+          <p class="panel-footnote">Sign in again when this session expires.</p>
+          {{else}}
+          <p class="status"><span class="status-dot" aria-hidden="true"></span>Not signed in</p>
+          <h2 id="session-title">Start with your permission.</h2>
+          <p class="panel-copy">Signet will ask you to approve frontend access and API A’s access to the orders service on your behalf.</p>
+          <a class="button" href="/login"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 8V6a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.5"/></svg>Sign in with Signet</a>
+          <p class="panel-footnote">You’ll return here after signing in.</p>
+          {{end}}
+        </section>
+      </div>
+      <section class="workspace" aria-labelledby="response-title">
+        <div class="workspace-heading"><h2 id="response-title">{{if .Result}}Orders and verified identity{{else}}Your response will appear here{{end}}</h2><code class="endpoint"><b>GET</b>/api/orders</code></div>
+        {{if .Result}}
+        <details class="response" open>
+          <summary>Response payload <span>Request completed</span></summary>
+          <pre tabindex="0" aria-label="Orders and verified identity JSON">{{.Result}}</pre>
+        </details>
+        <p class="response-note">Compare the source and downstream subjects: the user stays the same, while the audience and acting client change.</p>
+        {{else}}
+        <div class="empty-state">
+          <svg class="empty-symbol" viewBox="0 0 44 44" fill="none" aria-hidden="true"><rect x="5" y="7" width="34" height="30" rx="5" stroke="currentColor" stroke-width="1.5"/><path d="M5 16h34M12 11.5h1m4 0h1M15 23l-4 4 4 4m14-8 4 4-4 4m-7-9-3 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><h3>{{if .Session}}Make your first request{{else}}No request yet{{end}}</h3><p>{{if .Session}}Select “Read my orders” to exchange your source token and call the orders API. The response includes your orders and verified identity.{{else}}Sign in first, then select “Read my orders”. You’ll see the orders returned by API B and the identity carried through both services.{{end}}</p></div>
+        </div>
+        {{end}}
+      </section>
+      <aside class="explanation" aria-label="How this example works">
+        <div><h3>Your identity, a different audience</h3><p>API A exchanges your source token for a short-lived token intended for API B. API B checks your identity, the acting client and current token validity before returning data.</p></div>
+        <div><h3>You control the consent</h3><p>Local sign-out clears this session. To revoke delegated access, use the authorizations page in your Signet account. Revoking that grant also affects other frontends using it.</p></div>
+      </aside>
+    </main>
+    <footer><p>Fictional orders for a local Go integration example.</p><p>Tokens stay on the server.</p></footer>
+  </div>
+</body>
+</html>
