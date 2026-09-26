@@ -97,7 +97,6 @@ func TestLoadConfig(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -320,7 +319,11 @@ func TestExecuteRedactsCredentialFromTransportError(t *testing.T) {
 		if !ok {
 			t.Error("request context has no deadline")
 		} else if remaining := time.Until(deadline); remaining <= 0 || remaining > requestTimeout {
-			t.Errorf("request deadline remaining = %v, want within (0, %v]", remaining, requestTimeout)
+			t.Errorf(
+				"request deadline remaining = %v, want within (0, %v]",
+				remaining,
+				requestTimeout,
+			)
 		}
 		return nil, errors.New("transport accidentally echoed " + token)
 	})
@@ -357,7 +360,7 @@ func TestExecuteConfigurationFailureDoesNotSendRequest(t *testing.T) {
 
 	doer := httpDoerFunc(func(*http.Request) (*http.Response, error) {
 		t.Fatal("HTTP client was called with invalid configuration")
-		return nil, nil
+		return nil, errors.New("unexpected HTTP request")
 	})
 
 	var stdout bytes.Buffer
@@ -427,9 +430,9 @@ func mapGetenv(environment map[string]string) func(string) string {
 	}
 }
 
-func tail(value string, max int) string {
-	if len(value) <= max {
+func tail(value string, limit int) string {
+	if len(value) <= limit {
 		return value
 	}
-	return value[len(value)-max:]
+	return value[len(value)-limit:]
 }

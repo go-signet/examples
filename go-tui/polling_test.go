@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-signet/examples/go-tui/tui"
+
 	"golang.org/x/oauth2"
 )
 

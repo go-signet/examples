@@ -142,7 +142,11 @@ func (a *app) handleCallback(w http.ResponseWriter, r *http.Request) {
 
 	if errParam := r.URL.Query().Get("error"); errParam != "" {
 		desc := r.URL.Query().Get("error_description")
-		http.Error(w, fmt.Sprintf("provider returned error: %s: %s", errParam, desc), http.StatusBadRequest)
+		http.Error(
+			w,
+			fmt.Sprintf("provider returned error: %s: %s", errParam, desc),
+			http.StatusBadRequest,
+		)
 		return
 	}
 
@@ -202,7 +206,11 @@ func (a *app) handleCallback(w http.ResponseWriter, r *http.Request) {
 
 	var claims map[string]any
 	if err := idToken.Claims(&claims); err != nil {
-		http.Error(w, "failed to parse id_token claims: "+err.Error(), http.StatusInternalServerError)
+		http.Error(
+			w,
+			"failed to parse id_token claims: "+err.Error(),
+			http.StatusInternalServerError,
+		)
 		return
 	}
 

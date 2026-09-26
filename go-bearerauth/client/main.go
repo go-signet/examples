@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -227,7 +228,7 @@ func safeHTTPStatus(statusCode int) string {
 	if statusText := http.StatusText(statusCode); statusText != "" {
 		return fmt.Sprintf("%d %s", statusCode, statusText)
 	}
-	return fmt.Sprintf("%d", statusCode)
+	return strconv.Itoa(statusCode)
 }
 
 func redactCredential(value, bearerToken string) string {

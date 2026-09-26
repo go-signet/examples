@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-signet/sdk-go/credstore"
-
 	"github.com/go-signet/examples/go-tui/tui"
+
+	"github.com/go-signet/sdk-go/credstore"
 	"github.com/spf13/cobra"
 )
 
@@ -24,8 +24,7 @@ func (e exitCodeError) Error() string { return "" }
 
 func main() {
 	if err := buildRootCmd().Execute(); err != nil {
-		var exitErr exitCodeError
-		if errors.As(err, &exitErr) {
+		if exitErr, ok := errors.AsType[exitCodeError](err); ok {
 			os.Exit(int(exitErr))
 		}
 		fmt.Fprintln(os.Stderr, err)
@@ -58,6 +57,7 @@ func buildRootCmd() *cobra.Command {
 	return rootCmd
 }
 
+//nolint:forbidigo // This terminal UI intentionally renders user-facing output to stdout.
 func buildVersionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",

@@ -31,6 +31,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -41,7 +42,6 @@ import (
 	"time"
 
 	"github.com/go-signet/sdk-go/jwksauth"
-
 	"github.com/joho/godotenv"
 )
 
@@ -78,7 +78,10 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/api/profile", jwksauth.Middleware(mv, jwksauth.AccessRule{})(http.HandlerFunc(profileHandler)))
+	mux.Handle(
+		"/api/profile",
+		jwksauth.Middleware(mv, jwksauth.AccessRule{})(http.HandlerFunc(profileHandler)),
+	)
 	mux.Handle("/api/data", jwksauth.Middleware(mv, jwksauth.AccessRule{
 		Scopes:  []string{"email"},
 		Domains: []string{"oa", "hwrd"},
@@ -107,7 +110,11 @@ func main() {
 	log.Fatal(srv.ListenAndServe())
 }
 
-func newMultiVerifier(rawIssuers, audience string, skipAudience bool, privateClaimPrefix string) (*jwksauth.MultiVerifier, error) {
+func newMultiVerifier(
+	rawIssuers, audience string,
+	skipAudience bool,
+	privateClaimPrefix string,
+) (*jwksauth.MultiVerifier, error) {
 	issuers, err := parseIssuers(rawIssuers)
 	if err != nil {
 		return nil, err
@@ -153,7 +160,7 @@ func parseIssuers(raw string) ([]string, error) {
 		out = append(out, p)
 	}
 	if len(out) == 0 {
-		return nil, fmt.Errorf("TRUSTED_ISSUERS must contain at least one non-empty issuer URL")
+		return nil, errors.New("TRUSTED_ISSUERS must contain at least one non-empty issuer URL")
 	}
 	return out, nil
 }
@@ -164,13 +171,15 @@ func validateIssuerURL(raw string) error {
 		return fmt.Errorf("must be a valid URL: %w", err)
 	}
 	if u.Opaque != "" || u.Hostname() == "" {
-		return fmt.Errorf("must be an absolute URL with a host")
+		return errors.New("must be an absolute URL with a host")
 	}
 	if u.User != nil {
-		return fmt.Errorf("must not contain userinfo (an entry like https://x@evil.com is treated as evil.com)")
+		return errors.New(
+			"must not contain userinfo (an entry like https://x@evil.com is treated as evil.com)",
+		)
 	}
 	if u.RawQuery != "" || u.Fragment != "" {
-		return fmt.Errorf("must not contain a query string or fragment")
+		return errors.New("must not contain a query string or fragment")
 	}
 	switch u.Scheme {
 	case "https":
@@ -179,7 +188,7 @@ func validateIssuerURL(raw string) error {
 		if isLoopbackHost(u.Hostname()) {
 			return nil
 		}
-		return fmt.Errorf("http is only allowed for loopback hosts (localhost, 127.0.0.1, ::1)")
+		return errors.New("http is only allowed for loopback hosts (localhost, 127.0.0.1, ::1)")
 	default:
 		return fmt.Errorf("scheme must be https (or http for loopback), got %q", u.Scheme)
 	}
@@ -210,7 +219,10 @@ func logStartup(mv *jwksauth.MultiVerifier, audience, privateClaimPrefix string)
 		log.Println("Audience: DISABLED (SKIP_AUDIENCE_CHECK=1)")
 	}
 	if privateClaimPrefix != "" {
-		log.Printf("Private claim prefix: %q (overrides SDK default; applied to all issuers)", privateClaimPrefix)
+		log.Printf(
+			"Private claim prefix: %q (overrides SDK default; applied to all issuers)",
+			privateClaimPrefix,
+		)
 	} else {
 		log.Println("Private claim prefix: \"extra\" (SDK default; applied to all issuers)")
 	}

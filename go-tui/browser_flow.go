@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-signet/examples/go-tui/tui"
+
 	"github.com/go-signet/sdk-go/credstore"
 )
 

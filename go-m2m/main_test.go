@@ -38,7 +38,8 @@ func TestRunResources(t *testing.T) {
 				w.Header().Set("Content-Type", "application/json")
 				switch r.URL.Path {
 				case "/.well-known/openid-configuration":
-					json.NewEncoder(w).Encode(map[string]string{"issuer": srv.URL, "token_endpoint": srv.URL + "/token", "userinfo_endpoint": srv.URL + "/userinfo"})
+					json.NewEncoder(w).
+						Encode(map[string]string{"issuer": srv.URL, "token_endpoint": srv.URL + "/token", "userinfo_endpoint": srv.URL + "/userinfo"})
 				case "/token":
 					tokenCalls++
 					if err := r.ParseForm(); err != nil {
@@ -53,11 +54,14 @@ func TestRunResources(t *testing.T) {
 						}
 					}
 					if tc.tokenError {
-						w.WriteHeader(400)
+						w.WriteHeader(http.StatusBadRequest)
 						fmt.Fprint(w, `{"error":"invalid_target"}`)
 						return
 					}
-					fmt.Fprint(w, `{"access_token":"resource-token","token_type":"Bearer","expires_in":3600}`)
+					fmt.Fprint(
+						w,
+						`{"access_token":"resource-token","token_type":"Bearer","expires_in":3600}`,
+					)
 				case "/api/data", "/userinfo":
 					apiCalls++
 					wantPath := "/userinfo"
@@ -79,11 +83,16 @@ func TestRunResources(t *testing.T) {
 					redirected++
 				default:
 					t.Errorf("unexpected path %s", r.URL.Path)
-					w.WriteHeader(404)
+					w.WriteHeader(http.StatusNotFound)
 				}
 			}))
 			defer srv.Close()
-			cfg := config{signetURL: srv.URL, clientID: "test-client", clientSecret: "test-secret", resources: tc.resources}
+			cfg := config{
+				signetURL:    srv.URL,
+				clientID:     "test-client",
+				clientSecret: "test-secret",
+				resources:    tc.resources,
+			}
 			if tc.explicitAPI {
 				cfg.apiURL = srv.URL + "/api/data"
 			}

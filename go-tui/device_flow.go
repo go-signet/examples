@@ -10,8 +10,9 @@ import (
 	"strings"
 	"time"
 
-	retry "github.com/appleboy/go-httpretry"
 	"github.com/go-signet/examples/go-tui/tui"
+
+	retry "github.com/appleboy/go-httpretry"
 	"github.com/go-signet/sdk-go/credstore"
 	"golang.org/x/oauth2"
 )

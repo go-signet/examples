@@ -63,7 +63,11 @@ func TestMetadataURLs(t *testing.T) {
 
 // metaServer serves AS metadata on the given paths; issuerOf lets the metadata
 // reference the server's own runtime URL.
-func metaServer(t *testing.T, hits *atomic.Int64, paths map[string]func(issuer string) map[string]string) *httptest.Server {
+func metaServer(
+	t *testing.T,
+	hits *atomic.Int64,
+	paths map[string]func(issuer string) map[string]string,
+) *httptest.Server {
 	t.Helper()
 	mux := http.NewServeMux()
 	srv := httptest.NewServer(mux)
@@ -113,7 +117,10 @@ func TestFetchJWKSURI(t *testing.T) {
 	t.Run("rejects issuer mismatch", func(t *testing.T) {
 		srv := metaServer(t, nil, map[string]func(string) map[string]string{
 			"/.well-known/oauth-authorization-server": func(string) map[string]string {
-				return map[string]string{"issuer": "https://evil.example.com", "jwks_uri": "https://evil.example.com/keys"}
+				return map[string]string{
+					"issuer":   "https://evil.example.com",
+					"jwks_uri": "https://evil.example.com/keys",
+				}
 			},
 		})
 		if _, err := fetchJWKSURI(srv.URL); err == nil {

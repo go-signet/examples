@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"slices"
@@ -181,12 +182,8 @@ func TestLoadConfigRejectsInvalidSettings(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			values := make(map[string]string, len(valid)+len(tt.changes))
-			for key, value := range valid {
-				values[key] = value
-			}
-			for key, value := range tt.changes {
-				values[key] = value
-			}
+			maps.Copy(values, valid)
+			maps.Copy(values, tt.changes)
 
 			_, err := loadConfig(mapEnv(values))
 			if err == nil {
@@ -210,8 +207,18 @@ func TestBearerCredential(t *testing.T) {
 		wantOK bool
 	}{
 		{name: "standard", header: "Bearer opaque-value", want: "opaque-value", wantOK: true},
-		{name: "case insensitive", header: "bEaReR opaque-value", want: "opaque-value", wantOK: true},
-		{name: "ordinary whitespace", header: " \tBearer   opaque-value\t", want: "opaque-value", wantOK: true},
+		{
+			name:   "case insensitive",
+			header: "bEaReR opaque-value",
+			want:   "opaque-value",
+			wantOK: true,
+		},
+		{
+			name:   "ordinary whitespace",
+			header: " \tBearer   opaque-value\t",
+			want:   "opaque-value",
+			wantOK: true,
+		},
 		{name: "missing", header: "", wantOK: false},
 		{name: "missing value", header: "Bearer", wantOK: false},
 		{name: "other scheme", header: "Basic opaque-value", wantOK: false},
@@ -360,7 +367,7 @@ func TestHandlerSafelyReusesVerifierConcurrently(t *testing.T) {
 
 	failures := make(chan error, requestCount)
 	var group sync.WaitGroup
-	for i := 0; i < requestCount; i++ {
+	for i := range requestCount {
 		group.Add(1)
 		go func(index int) {
 			defer group.Done()
