@@ -289,26 +289,34 @@ func loadConfig() *AppConfig {
 
 	// Resolve timeout configuration.
 	cfg.TokenExchangeTimeout = getDurationConfig(
-		flagTokenExchangeTimeout, "TOKEN_EXCHANGE_TIMEOUT", defaultTokenExchangeTimeout)
+		flagTokenExchangeTimeout, "TOKEN_EXCHANGE_TIMEOUT", defaultTokenExchangeTimeout,
+	)
 	cfg.TokenVerificationTimeout = getDurationConfig(
-		flagTokenVerificationTimeout, "TOKEN_VERIFICATION_TIMEOUT", defaultTokenVerificationTimeout)
+		flagTokenVerificationTimeout, "TOKEN_VERIFICATION_TIMEOUT", defaultTokenVerificationTimeout,
+	)
 	cfg.RefreshTokenTimeout = getDurationConfig(
-		flagRefreshTokenTimeout, "REFRESH_TOKEN_TIMEOUT", defaultRefreshTokenTimeout)
+		flagRefreshTokenTimeout, "REFRESH_TOKEN_TIMEOUT", defaultRefreshTokenTimeout,
+	)
 	cfg.DeviceCodeRequestTimeout = getDurationConfig(
 		flagDeviceCodeRequestTimeout,
 		"DEVICE_CODE_REQUEST_TIMEOUT",
 		defaultDeviceCodeRequestTimeout,
 	)
 	cfg.CallbackTimeout = getDurationConfig(
-		flagCallbackTimeout, "CALLBACK_TIMEOUT", defaultCallbackTimeout)
+		flagCallbackTimeout, "CALLBACK_TIMEOUT", defaultCallbackTimeout,
+	)
 	cfg.UserInfoTimeout = getDurationConfig(
-		flagUserInfoTimeout, "USERINFO_TIMEOUT", defaultUserInfoTimeout)
+		flagUserInfoTimeout, "USERINFO_TIMEOUT", defaultUserInfoTimeout,
+	)
 	cfg.DiscoveryTimeout = getDurationConfig(
-		flagDiscoveryTimeout, "DISCOVERY_TIMEOUT", defaultDiscoveryTimeout)
+		flagDiscoveryTimeout, "DISCOVERY_TIMEOUT", defaultDiscoveryTimeout,
+	)
 	cfg.RevocationTimeout = getDurationConfig(
-		flagRevocationTimeout, "REVOCATION_TIMEOUT", defaultRevocationTimeout)
+		flagRevocationTimeout, "REVOCATION_TIMEOUT", defaultRevocationTimeout,
+	)
 	cfg.MaxResponseBodySize = getInt64Config(
-		flagMaxResponseBodySize, "MAX_RESPONSE_BODY_SIZE", defaultMaxResponseBodySize)
+		flagMaxResponseBodySize, "MAX_RESPONSE_BODY_SIZE", defaultMaxResponseBodySize,
+	)
 	if cfg.MaxResponseBodySize > maxResponseBodySizeCap {
 		fmt.Fprintf(os.Stderr,
 			"WARNING: MAX_RESPONSE_BODY_SIZE exceeds %d, capping\n", maxResponseBodySizeCap)
