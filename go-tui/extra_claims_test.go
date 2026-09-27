@@ -342,7 +342,8 @@ func TestRefreshAccessToken_ExtraClaimsSurviveURLEncoding(t *testing.T) {
 
 	// Build via resolveExtraClaims so the test exercises the full pipe.
 	resolved, err := resolveExtraClaims(
-		[]string{"trace_id=a&b=c+d", "name=世界", "tags=[\"x\",\"y\"]"}, "")
+		[]string{"trace_id=a&b=c+d", "name=世界", "tags=[\"x\",\"y\"]"}, "",
+	)
 	if err != nil {
 		t.Fatalf("resolveExtraClaims() error: %v", err)
 	}
