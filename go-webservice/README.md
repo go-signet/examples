@@ -8,7 +8,7 @@ Uses **Bearer Token Validation**. The server validates access tokens sent by cli
 
 ## Prerequisites
 
-- Go 1.26+
+- Go 1.26.10+
 - An Signet server with a configured OAuth client
 
 ## Environment Variables

@@ -82,7 +82,7 @@ SDK deliberately does not cache or coalesce those verdicts.
 
 ## Prerequisites
 
-- Go 1.26+ (required by sdk-go v1.2.0).
+- Go 1.26.10+.
 - A reachable Signet issuer with OIDC discovery and asymmetric JWT signing.
 - A Signet Client App whose ID, audience, and scopes you control.
 - For the Personal API Key path, Signet Personal API Keys must be enabled.

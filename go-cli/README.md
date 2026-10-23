@@ -11,7 +11,7 @@ The SDK auto-detects the environment and selects the appropriate flow.
 
 ## Prerequisites
 
-- Go 1.26+
+- Go 1.26.10+
 - An Signet server with a configured OAuth client
 
 ## Environment Variables

@@ -67,7 +67,7 @@ sequenceDiagram
 
 ## Prerequisites
 
-- Go 1.26+
+- Go 1.26.10+
 - An Signet issuer whose `/.well-known/openid-configuration` advertises `jwks_uri` and RS256 (or other asymmetric) signing.
 
 ## Environment Variables

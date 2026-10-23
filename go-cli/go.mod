@@ -1,6 +1,6 @@
 module github.com/go-signet/examples/go-cli
 
-go 1.26.0
+go 1.26.10
 
 require (
 	github.com/go-signet/sdk-go v1.2.0

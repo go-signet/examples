@@ -11,7 +11,7 @@
 # pluginserver fail with `exec format error` and emit *nothing* on stdout, and
 # Kong would die at init with `failed decoding plugin info: Expected value but
 # found T_END at character 1` (an empty `-dump`).
-FROM golang:1.26 AS build
+FROM golang:1.26.10 AS build
 ARG TARGETOS
 ARG TARGETARCH
 WORKDIR /src

@@ -71,7 +71,7 @@ Same offline benefits as [go-jwks](../go-jwks): zero per-request round-trips, ho
 
 ## Prerequisites
 
-- Go 1.26+
+- Go 1.26.10+
 - Two or more Signet issuers, each with `/.well-known/openid-configuration` exposing `jwks_uri` and asymmetric (RS256 / ES256 / PS256) signing.
 
 ## Environment Variables

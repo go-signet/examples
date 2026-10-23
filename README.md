@@ -10,19 +10,19 @@ Multi-language usage examples for Signet authentication (Go, Python, TypeScript,
 
 | Example                         | Use Case                 | OAuth Flow                   | Language   | Prerequisites    |
 | ------------------------------- | ------------------------ | ---------------------------- | ---------- | ---------------- |
-| [go-cli](go-cli/)               | CLI login                | Auth Code+PKCE / Device Code | Go         | Go 1.26+         |
-| [go-tui](go-tui/)               | CLI login (full TUI)     | Auth Code+PKCE / Device Code | Go         | Go 1.26+         |
+| [go-cli](go-cli/)               | CLI login                | Auth Code+PKCE / Device Code | Go         | Go 1.26.10+         |
+| [go-tui](go-tui/)               | CLI login (full TUI)     | Auth Code+PKCE / Device Code | Go         | Go 1.26.10+         |
 | [python-cli](python-cli/)       | CLI login                | Auth Code+PKCE / Device Code | Python     | Python 3.10+, uv |
 | [bash-cli](bash-cli/)           | CLI login (headless)     | Device Code (RFC 8628)       | Bash       | curl, jq         |
-| [go-m2m](go-m2m/)               | Service-to-service       | Client Credentials           | Go         | Go 1.26+         |
+| [go-m2m](go-m2m/)               | Service-to-service       | Client Credentials           | Go         | Go 1.26.10+         |
 | [python-m2m](python-m2m/)       | Service-to-service       | Client Credentials           | Python     | Python 3.10+, uv |
-| [go-webservice](go-webservice/) | API protection           | Bearer validation            | Go         | Go 1.26+         |
-| [go-bearerauth](go-bearerauth/) | API protection (mixed)   | JWT + Personal API Key       | Go         | Go 1.26+         |
-| [go-jwks](go-jwks/)             | API protection (offline) | JWKS public-key validation   | Go         | Go 1.26+         |
-| [go-jwks-multi](go-jwks-multi/) | API protection (N iss)   | JWKS validation (multi)      | Go         | Go 1.26+         |
-| [go-oidc](go-oidc/)             | Web login (no SDK)       | Auth Code (coreos/go-oidc)   | Go         | Go 1.25+         |
+| [go-webservice](go-webservice/) | API protection           | Bearer validation            | Go         | Go 1.26.10+         |
+| [go-bearerauth](go-bearerauth/) | API protection (mixed)   | JWT + Personal API Key       | Go         | Go 1.26.10+         |
+| [go-jwks](go-jwks/)             | API protection (offline) | JWKS public-key validation   | Go         | Go 1.26.10+         |
+| [go-jwks-multi](go-jwks-multi/) | API protection (N iss)   | JWKS validation (multi)      | Go         | Go 1.26.10+         |
+| [go-oidc](go-oidc/)             | Web login (no SDK)       | Auth Code (coreos/go-oidc)   | Go         | Go 1.26.10+         |
 | [vue-spa](vue-spa/)             | Web login (SPA)          | Auth Code + PKCE (browser)   | TypeScript | Bun 1.2+         |
-| [kong-mcp](kong-mcp/)           | MCP gateway (Kong)       | PKCE entry + JWKS validation | Go         | Go 1.25+, Kong   |
+| [kong-mcp](kong-mcp/)           | MCP gateway (Kong)       | PKCE entry + JWKS validation | Go         | Go 1.26.10+, Kong   |
 
 ## Environment Setup
 
