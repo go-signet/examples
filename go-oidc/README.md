@@ -14,7 +14,7 @@ Browser-based OpenID Connect sign-in using the standard [go-oidc](https://github
 
 ## Prerequisites
 
-- Go 1.25+
+- Go 1.26.10+
 - An OIDC provider (e.g., Signet) with a confidential client that allows `http://localhost:8088/callback` as a redirect URI
 
 ## Environment Variables

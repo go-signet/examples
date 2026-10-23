@@ -1,6 +1,6 @@
 module github.com/go-signet/examples/kong-mcp
 
-go 1.25.0
+go 1.26.10
 
 require (
 	github.com/Kong/go-pdk v0.11.0

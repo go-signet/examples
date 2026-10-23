@@ -1,6 +1,6 @@
 module github.com/go-signet/examples/go-jwks-multi
 
-go 1.26.0
+go 1.26.10
 
 require (
 	github.com/go-jose/go-jose/v4 v4.1.5
