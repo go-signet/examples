@@ -3,7 +3,7 @@ module github.com/go-signet/examples/go-jwks-multi
 go 1.26.10
 
 require (
-	github.com/go-jose/go-jose/v4 v4.1.5
+	github.com/go-jose/go-jose/v4 v4.1.6
 	github.com/go-signet/sdk-go v1.2.0
 	github.com/joho/godotenv v1.5.1
 )
