@@ -1,8 +1,8 @@
-github.com/appleboy/go-httpretry v0.13.0 h1:8m1Q+Kkutr5v1AZVR00HkSHXvNZEJ84RXUryqvd/6MM=
-github.com/appleboy/go-httpretry v0.13.0/go.mod h1:M0EZ/bwBWvCo5eRjQBb+/CRNjYqBcZDcL252FqxiYR8=
+github.com/appleboy/go-httpretry v0.13.1 h1:3t9aSngNbG2p7QWFe5oBMdcU5awrrEjh4rNzhh/1mas=
+github.com/appleboy/go-httpretry v0.13.1/go.mod h1:ap12cbQsymOQkXSeIWKNN7tmm//rQm046CVeg+dooiU=
 github.com/go-signet/sdk-go v1.2.0 h1:SHARbSwce3rf6B8r39hYMBGp4GzSBmkZLtfhv71GYik=
 github.com/go-signet/sdk-go v1.2.0/go.mod h1:0vWyBVanscFv+KnwV7m9vZGvcP73gQF691ZYT2PpImc=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
 github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
-golang.org/x/sync v0.23.0 h1:KameEIfc1IkluZyXWLn39Wd4tURc6GbCiISGiZm2bQk=
-golang.org/x/sync v0.23.0/go.mod h1:sUUOizhqBxiL6pEWpqNLUiaJn1ShEbZ6BBqskPbjZm0=
+golang.org/x/sync v0.24.0 h1:iqiDrGoDgyuvAKrhLQthUEzU/R378N78gXbBjxed7oA=
+golang.org/x/sync v0.24.0/go.mod h1:sUUOizhqBxiL6pEWpqNLUiaJn1ShEbZ6BBqskPbjZm0=
