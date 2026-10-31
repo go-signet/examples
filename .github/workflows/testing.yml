@@ -1,0 +1,54 @@
+name: Lint and Testing
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    strategy:
+      fail-fast: false
+      matrix:
+        go: [1.26, 1.27]
+    runs-on: ubuntu-latest
+    name: lint @ Go ${{ matrix.go }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup go
+        uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go }}
+          cache: false
+
+      - name: Run golangci-lint for all Go modules
+        run: make lint
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        go: [1.26, 1.27]
+    runs-on: ubuntu-latest
+    name: test @ Go ${{ matrix.go }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup go
+        uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
+          cache-dependency-path: "**/go.sum"
+
+      - name: Run tests for all Go modules
+        run: make test
