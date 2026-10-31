@@ -8,6 +8,6 @@ require (
 )
 
 require (
-	github.com/appleboy/go-httpretry v0.13.0 // indirect
-	golang.org/x/sync v0.23.0 // indirect
+	github.com/appleboy/go-httpretry v0.13.1 // indirect
+	golang.org/x/sync v0.24.0 // indirect
 )

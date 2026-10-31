@@ -3,7 +3,7 @@ module github.com/go-signet/examples/go-jwks-multi
 go 1.26.10
 
 require (
-	github.com/go-jose/go-jose/v4 v4.1.6
+	github.com/go-jose/go-jose/v4 v4.1.7
 	github.com/go-signet/sdk-go v1.2.0
 	github.com/joho/godotenv v1.5.1
 )
@@ -11,5 +11,5 @@ require (
 require (
 	github.com/coreos/go-oidc/v3 v3.21.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
-	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
 )
