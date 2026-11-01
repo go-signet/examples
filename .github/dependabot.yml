@@ -28,3 +28,23 @@ updates:
     directory: /python-m2m
     schedule:
       interval: weekly
+  - package-ecosystem: gomod
+    directory: /go-bearerauth
+    schedule:
+      interval: weekly
+  - package-ecosystem: gomod
+    directory: /go-jwks
+    schedule:
+      interval: weekly
+  - package-ecosystem: gomod
+    directory: /go-jwks-multi
+    schedule:
+      interval: weekly
+  - package-ecosystem: gomod
+    directory: /go-tui
+    schedule:
+      interval: weekly
+  - package-ecosystem: gomod
+    directory: /kong-mcp
+    schedule:
+      interval: weekly
