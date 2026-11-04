@@ -75,7 +75,7 @@ func TestPollForToken_AuthorizationPending(t *testing.T) {
 		Interval:   1,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 	defer cancel()
 
 	updates := make(chan tui.FlowUpdate, 100)
@@ -148,7 +148,7 @@ func TestPollForToken_SlowDown(t *testing.T) {
 		Interval:   1,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 15*time.Second)
 	defer cancel()
 
 	updates := make(chan tui.FlowUpdate, 100)
@@ -193,7 +193,7 @@ func pollForTokenErrorTest(t *testing.T, errCode, errDesc, expectedMsg string) {
 		Interval:   1,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
 	updates := make(chan tui.FlowUpdate, 100)
@@ -248,7 +248,7 @@ func TestPollForToken_ContextTimeout(t *testing.T) {
 		Interval:   1,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
 	defer cancel()
 
 	updates := make(chan tui.FlowUpdate, 100)
@@ -293,7 +293,7 @@ func TestPollForToken_NegativeInterval(t *testing.T) {
 	// Short context: with the interval clamped to the 5s default, the first poll
 	// never fires before this deadline, so the call returns via ctx instead of
 	// waiting. The assertion is simply that it returns rather than panicking.
-	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+	ctx, cancel := context.WithTimeout(t.Context(), 200*time.Millisecond)
 	defer cancel()
 
 	updates := make(chan tui.FlowUpdate, 100)
@@ -337,7 +337,7 @@ func TestExchangeDeviceCode_Success(t *testing.T) {
 
 	cfg := testConfig(t)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	token, err := exchangeDeviceCode(ctx, cfg, server.URL, "test-client", "test-device-code")
 	if err != nil {
 		t.Fatalf("expected success, got error: %v", err)

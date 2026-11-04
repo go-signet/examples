@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -87,7 +86,7 @@ func TestRunTokenDelete(t *testing.T) {
 			cfg := &AppConfig{ClientID: "test-id", Store: store}
 			var stdout, stderr bytes.Buffer
 			code := runTokenDelete(
-				context.Background(), cfg, true, &stdout, &stderr,
+				t.Context(), cfg, true, &stdout, &stderr,
 			)
 			if code != tc.wantCode {
 				t.Errorf("exit code: got %d, want %d", code, tc.wantCode)
@@ -157,7 +156,7 @@ func TestRunTokenDelete_ServerRevocation(t *testing.T) {
 
 		var stdout, stderr bytes.Buffer
 		code := runTokenDelete(
-			context.Background(), cfg, false, &stdout, &stderr,
+			t.Context(), cfg, false, &stdout, &stderr,
 		)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0; stderr: %s", code, stderr.String())
@@ -226,7 +225,7 @@ func TestRunTokenDelete_ServerRevocation(t *testing.T) {
 
 		var stdout, stderr bytes.Buffer
 		code := runTokenDelete(
-			context.Background(), cfg, false, &stdout, &stderr,
+			t.Context(), cfg, false, &stdout, &stderr,
 		)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0", code)
@@ -274,7 +273,7 @@ func TestRunTokenDelete_ServerRevocation(t *testing.T) {
 
 		var stdout, stderr bytes.Buffer
 		code := runTokenDelete(
-			context.Background(), cfg, true, &stdout, &stderr,
+			t.Context(), cfg, true, &stdout, &stderr,
 		)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0", code)
@@ -333,7 +332,7 @@ func TestRunTokenDelete_ServerRevocation(t *testing.T) {
 
 		var stdout, stderr bytes.Buffer
 		code := runTokenDelete(
-			context.Background(), cfg, false, &stdout, &stderr,
+			t.Context(), cfg, false, &stdout, &stderr,
 		)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0", code)
@@ -432,7 +431,7 @@ func TestRunTokenGet(t *testing.T) {
 				RefreshThreshold: defaultRefreshThreshold,
 			}
 			var stdout, stderr bytes.Buffer
-			code := runTokenGet(context.Background(), cfg, nil, tc.jsonOut, &stdout, &stderr)
+			code := runTokenGet(t.Context(), cfg, nil, tc.jsonOut, &stdout, &stderr)
 			if code != tc.wantCode {
 				t.Errorf("exit code: got %d, want %d", code, tc.wantCode)
 			}
@@ -500,7 +499,7 @@ func TestRunTokenGet_ProactiveRefresh(t *testing.T) {
 		})
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenGet(context.Background(), cfg, nil, false, &stdout, &stderr)
+		code := runTokenGet(t.Context(), cfg, nil, false, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0; stderr: %s", code, stderr.String())
 		}
@@ -539,7 +538,7 @@ func TestRunTokenGet_ProactiveRefresh(t *testing.T) {
 		})
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenGet(context.Background(), cfg, nil, true, &stdout, &stderr)
+		code := runTokenGet(t.Context(), cfg, nil, true, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0; stderr: %s", code, stderr.String())
 		}
@@ -572,7 +571,7 @@ func TestRunTokenGet_ProactiveRefresh(t *testing.T) {
 		})
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenGet(context.Background(), cfg, nil, false, &stdout, &stderr)
+		code := runTokenGet(t.Context(), cfg, nil, false, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0 (graceful); stderr: %s", code, stderr.String())
 		}
@@ -608,7 +607,7 @@ func TestRunTokenGet_ProactiveRefresh(t *testing.T) {
 		})
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenGet(context.Background(), cfg, nil, false, &stdout, &stderr)
+		code := runTokenGet(t.Context(), cfg, nil, false, &stdout, &stderr)
 		if code == 0 {
 			t.Fatalf("exit code: got 0, want non-zero; stdout: %s", stdout.String())
 		}
@@ -639,7 +638,7 @@ func TestRunTokenGet_ProactiveRefresh(t *testing.T) {
 		})
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenGet(context.Background(), cfg, nil, false, &stdout, &stderr)
+		code := runTokenGet(t.Context(), cfg, nil, false, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0; stderr: %s", code, stderr.String())
 		}
@@ -691,7 +690,7 @@ func TestRunTokenGet_DefersDiscoveryUntilRefresh(t *testing.T) {
 		}
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenGet(context.Background(), cfg, nil, false, &stdout, &stderr)
+		code := runTokenGet(t.Context(), cfg, nil, false, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0; stderr: %s", code, stderr.String())
 		}
@@ -763,7 +762,7 @@ func TestRunTokenGet_DefersDiscoveryUntilRefresh(t *testing.T) {
 		}
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenGet(context.Background(), cfg, nil, false, &stdout, &stderr)
+		code := runTokenGet(t.Context(), cfg, nil, false, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0; stderr: %s", code, stderr.String())
 		}
@@ -813,7 +812,7 @@ func TestRunTokenGet_DefersDiscoveryUntilRefresh(t *testing.T) {
 		}
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenGet(context.Background(), cfg, nil, false, &stdout, &stderr)
+		code := runTokenGet(t.Context(), cfg, nil, false, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0 (graceful); stderr: %s", code, stderr.String())
 		}
@@ -850,7 +849,7 @@ func TestRunTokenGet_LazyFullConfig(t *testing.T) {
 		}
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenGet(context.Background(), cfg, loadFull, false, &stdout, &stderr)
+		code := runTokenGet(t.Context(), cfg, loadFull, false, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0; stderr: %s", code, stderr.String())
 		}
@@ -908,7 +907,7 @@ func TestRunTokenGet_LazyFullConfig(t *testing.T) {
 		}
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenGet(context.Background(), partial, loadFull, false, &stdout, &stderr)
+		code := runTokenGet(t.Context(), partial, loadFull, false, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0; stderr: %s", code, stderr.String())
 		}
@@ -976,7 +975,7 @@ func TestRunTokenInspect(t *testing.T) {
 		)
 		cfg := &AppConfig{ClientID: "test-id", Store: store}
 		var stdout, stderr bytes.Buffer
-		code := runTokenInspect(context.Background(), cfg, &stdout, &stderr)
+		code := runTokenInspect(t.Context(), cfg, &stdout, &stderr)
 		if code != 1 {
 			t.Errorf("exit code: got %d, want 1", code)
 		}
@@ -1023,7 +1022,7 @@ func TestRunTokenInspect(t *testing.T) {
 		}
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenInspect(context.Background(), cfg, &stdout, &stderr)
+		code := runTokenInspect(t.Context(), cfg, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0; stderr: %s", code, stderr.String())
 		}
@@ -1080,7 +1079,7 @@ func TestRunTokenInspect(t *testing.T) {
 		}
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenInspect(context.Background(), cfg, &stdout, &stderr)
+		code := runTokenInspect(t.Context(), cfg, &stdout, &stderr)
 		if code != 1 {
 			t.Errorf("exit code: got %d, want 1", code)
 		}
@@ -1123,7 +1122,7 @@ func TestRunTokenInspect(t *testing.T) {
 		}
 
 		var stdout, stderr bytes.Buffer
-		code := runTokenInspect(context.Background(), cfg, &stdout, &stderr)
+		code := runTokenInspect(t.Context(), cfg, &stdout, &stderr)
 		if code != 0 {
 			t.Fatalf("exit code: got %d, want 0; stderr: %s", code, stderr.String())
 		}

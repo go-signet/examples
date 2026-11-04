@@ -193,7 +193,7 @@ func TestCallbackServer_Success(t *testing.T) {
 
 	ch := startCallbackServerAsync(
 		t,
-		context.Background(),
+		t.Context(),
 		port,
 		state,
 		stubExchangeFn("mycode123"),
@@ -234,7 +234,7 @@ func TestCallbackServer_StateMismatch(t *testing.T) {
 	const port = 19102
 	state := "expected-state"
 
-	ch := startCallbackServerAsync(t, context.Background(), port, state, noExchangeFn(t))
+	ch := startCallbackServerAsync(t, t.Context(), port, state, noExchangeFn(t))
 
 	callbackURL := fmt.Sprintf(
 		"http://127.0.0.1:%d/callback?code=mycode&state=wrong-state",
@@ -280,7 +280,7 @@ func TestCallbackServer_OAuthError(t *testing.T) {
 	const port = 19103
 	state := "state-for-error"
 
-	ch := startCallbackServerAsync(t, context.Background(), port, state, noExchangeFn(t))
+	ch := startCallbackServerAsync(t, t.Context(), port, state, noExchangeFn(t))
 
 	callbackURL := fmt.Sprintf(
 		"http://127.0.0.1:%d/callback?error=access_denied&error_description=User+denied&state=%s",
@@ -329,7 +329,7 @@ func TestCallbackServer_ExchangeFailure(t *testing.T) {
 	const port = 19106
 	state := "state-for-exchange-failure"
 
-	ch := startCallbackServerAsync(t, context.Background(), port, state,
+	ch := startCallbackServerAsync(t, t.Context(), port, state,
 		func(_ context.Context, _ string) (*credstore.Token, error) {
 			return nil, errors.New("unauthorized_client: backend service authentication failed")
 		})
@@ -384,7 +384,7 @@ func TestCallbackServer_DoubleCallback(t *testing.T) {
 	const port = 19105
 	state := "test-state-double"
 
-	ch := startCallbackServerAsync(t, context.Background(), port, state, stubExchangeFn("mycode"))
+	ch := startCallbackServerAsync(t, t.Context(), port, state, stubExchangeFn("mycode"))
 
 	url := fmt.Sprintf("http://127.0.0.1:%d/callback?code=mycode&state=%s", port, state)
 
@@ -424,7 +424,7 @@ func TestCallbackServer_MissingCode(t *testing.T) {
 	const port = 19104
 	state := "state-for-missing-code"
 
-	ch := startCallbackServerAsync(t, context.Background(), port, state, noExchangeFn(t))
+	ch := startCallbackServerAsync(t, t.Context(), port, state, noExchangeFn(t))
 
 	callbackURL := fmt.Sprintf(
 		"http://127.0.0.1:%d/callback?state=%s",
@@ -450,7 +450,7 @@ func TestCallbackServer_RejectsNonGetMethod(t *testing.T) {
 	const port = 19107
 	state := "test-state-method"
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 
 	ch := startCallbackServerAsync(t, ctx, port, state, noExchangeFn(t))

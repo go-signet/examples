@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -200,21 +199,19 @@ func TestSaveTokens_ConcurrentWrites(t *testing.T) {
 
 	const goroutines = 10
 	var wg sync.WaitGroup
-	wg.Add(goroutines)
 	for i := range goroutines {
-		go func(id int) {
-			defer wg.Done()
-			cid := fmt.Sprintf("client-%d", id)
+		wg.Go(func() {
+			cid := fmt.Sprintf("client-%d", i)
 			if err := store.Save(cid, credstore.Token{
-				AccessToken:  fmt.Sprintf("access-token-%d", id),
-				RefreshToken: fmt.Sprintf("refresh-token-%d", id),
+				AccessToken:  fmt.Sprintf("access-token-%d", i),
+				RefreshToken: fmt.Sprintf("refresh-token-%d", i),
 				TokenType:    "Bearer",
 				ExpiresAt:    time.Now().Add(time.Hour),
 				ClientID:     cid,
 			}); err != nil {
-				t.Errorf("goroutine %d: Save() error: %v", id, err)
+				t.Errorf("goroutine %d: Save() error: %v", i, err)
 			}
-		}(i)
+		})
 	}
 	wg.Wait()
 
@@ -317,7 +314,7 @@ func TestRefreshAccessToken_RotationMode(t *testing.T) {
 			cfg.Endpoints = defaultEndpoints(srv.URL)
 			cfg.ClientID = "test-client-rotation"
 
-			storage, err := refreshAccessToken(context.Background(), cfg, tt.oldRefreshToken)
+			storage, err := refreshAccessToken(t.Context(), cfg, tt.oldRefreshToken)
 			if err != nil {
 				t.Fatalf("refreshAccessToken() error: %v", err)
 			}
@@ -364,7 +361,7 @@ func TestRequestDeviceCode_WithRetry(t *testing.T) {
 	cfg.ServerURL = testServer.URL
 	cfg.Endpoints = defaultEndpoints(testServer.URL)
 
-	resp, err := requestDeviceCode(context.Background(), cfg)
+	resp, err := requestDeviceCode(t.Context(), cfg)
 	if err != nil {
 		t.Fatalf("requestDeviceCode() error: %v", err)
 	}

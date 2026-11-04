@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -244,7 +243,7 @@ func TestRefreshAccessToken_SendsExtraClaims(t *testing.T) {
 	cfg.Endpoints = defaultEndpoints(gotForm.serverURL)
 	cfg.ExtraClaims = `{"project":"acme"}`
 
-	if _, err := refreshAccessToken(context.Background(), cfg, "old-refresh"); err != nil {
+	if _, err := refreshAccessToken(t.Context(), cfg, "old-refresh"); err != nil {
 		t.Fatalf("refreshAccessToken() error: %v", err)
 	}
 
@@ -265,7 +264,7 @@ func TestRefreshAccessToken_OmitsExtraClaimsWhenUnset(t *testing.T) {
 	cfg.Endpoints = defaultEndpoints(gotForm.serverURL)
 	cfg.ExtraClaims = ""
 
-	if _, err := refreshAccessToken(context.Background(), cfg, "old-refresh"); err != nil {
+	if _, err := refreshAccessToken(t.Context(), cfg, "old-refresh"); err != nil {
 		t.Fatalf("refreshAccessToken() error: %v", err)
 	}
 
@@ -283,7 +282,7 @@ func TestExchangeCode_SendsExtraClaims(t *testing.T) {
 	cfg.Endpoints = defaultEndpoints(gotForm.serverURL)
 	cfg.ExtraClaims = `{"trace_id":"req-42"}`
 
-	if _, err := exchangeCode(context.Background(), cfg, "auth-code", "verifier"); err != nil {
+	if _, err := exchangeCode(t.Context(), cfg, "auth-code", "verifier"); err != nil {
 		t.Fatalf("exchangeCode() error: %v", err)
 	}
 
@@ -304,7 +303,7 @@ func TestExchangeCode_OmitsExtraClaimsWhenUnset(t *testing.T) {
 	cfg.Endpoints = defaultEndpoints(gotForm.serverURL)
 	cfg.ExtraClaims = ""
 
-	if _, err := exchangeCode(context.Background(), cfg, "auth-code", "verifier"); err != nil {
+	if _, err := exchangeCode(t.Context(), cfg, "auth-code", "verifier"); err != nil {
 		t.Fatalf("exchangeCode() error: %v", err)
 	}
 	if _, present := gotForm.value(t)["extra_claims"]; present {
@@ -321,7 +320,7 @@ func TestExchangeDeviceCode_OmitsExtraClaimsWhenUnset(t *testing.T) {
 	cfg.ExtraClaims = ""
 
 	_, err := exchangeDeviceCode(
-		context.Background(), cfg, cfg.Endpoints.TokenURL, cfg.ClientID, "device-code-xyz",
+		t.Context(), cfg, cfg.Endpoints.TokenURL, cfg.ClientID, "device-code-xyz",
 	)
 	if err != nil {
 		t.Fatalf("exchangeDeviceCode() error: %v", err)
@@ -349,7 +348,7 @@ func TestRefreshAccessToken_ExtraClaimsSurviveURLEncoding(t *testing.T) {
 	}
 	cfg.ExtraClaims = resolved
 
-	if _, err := refreshAccessToken(context.Background(), cfg, "old-refresh"); err != nil {
+	if _, err := refreshAccessToken(t.Context(), cfg, "old-refresh"); err != nil {
 		t.Fatalf("refreshAccessToken() error: %v", err)
 	}
 	got := gotForm.value(t).Get("extra_claims")
@@ -455,7 +454,7 @@ func TestExchangeDeviceCode_SendsExtraClaims(t *testing.T) {
 	cfg.ExtraClaims = `{"project":"acme","count":7}`
 
 	_, err := exchangeDeviceCode(
-		context.Background(), cfg, cfg.Endpoints.TokenURL, cfg.ClientID, "device-code-xyz",
+		t.Context(), cfg, cfg.Endpoints.TokenURL, cfg.ClientID, "device-code-xyz",
 	)
 	if err != nil {
 		t.Fatalf("exchangeDeviceCode() error: %v", err)

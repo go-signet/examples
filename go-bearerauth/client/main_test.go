@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -136,7 +135,7 @@ func TestExecuteSuccess(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	exitCode := execute(
-		context.Background(),
+		t.Context(),
 		mapGetenv(map[string]string{
 			"API_URL":      server.URL + "/api/whoami",
 			"BEARER_TOKEN": token,
@@ -197,7 +196,7 @@ func TestExecuteNon2xxShowsSafeResponseAndFails(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	exitCode := execute(
-		context.Background(),
+		t.Context(),
 		mapGetenv(map[string]string{
 			"API_URL":      server.URL,
 			"BEARER_TOKEN": token,
@@ -239,7 +238,7 @@ func TestExecuteTruncatesResponseBody(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	exitCode := execute(
-		context.Background(),
+		t.Context(),
 		mapGetenv(map[string]string{
 			"API_URL":      server.URL,
 			"BEARER_TOKEN": "test-token",
@@ -284,7 +283,7 @@ func TestDefaultHTTPClientRefusesRedirect(t *testing.T) {
 
 	var output bytes.Buffer
 	err := callAPI(
-		context.Background(),
+		t.Context(),
 		newHTTPClient(),
 		config{
 			apiURL:      redirect.URL,
@@ -331,7 +330,7 @@ func TestExecuteRedactsCredentialFromTransportError(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	exitCode := execute(
-		context.Background(),
+		t.Context(),
 		mapGetenv(map[string]string{
 			"API_URL":      "https://api.example.test/whoami",
 			"BEARER_TOKEN": token,
@@ -366,7 +365,7 @@ func TestExecuteConfigurationFailureDoesNotSendRequest(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	exitCode := execute(
-		context.Background(),
+		t.Context(),
 		mapGetenv(nil),
 		doer,
 		&stdout,
@@ -391,7 +390,7 @@ func TestExecuteInvalidURLIsConfigurationErrorAndDoesNotEchoIt(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	exitCode := execute(
-		context.Background(),
+		t.Context(),
 		mapGetenv(map[string]string{
 			"API_URL":      "://invalid/" + token,
 			"BEARER_TOKEN": token,
