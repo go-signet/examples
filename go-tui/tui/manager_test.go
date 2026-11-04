@@ -79,7 +79,7 @@ func TestSimpleManagerRunBrowserFlow(t *testing.T) {
 			updates <- FlowUpdate{Type: CallbackReceived}
 			return &TokenStorage{AccessToken: "test-token"}, true, nil
 		}
-		_, ok, err := m.RunBrowserFlow(context.Background(), perform)
+		_, ok, err := m.RunBrowserFlow(t.Context(), perform)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -94,7 +94,7 @@ func TestSimpleManagerRunBrowserFlow(t *testing.T) {
 			updates <- FlowUpdate{Type: StepError, Message: "browser failed"}
 			return nil, false, nil
 		}
-		_, ok, err := m.RunBrowserFlow(context.Background(), perform)
+		_, ok, err := m.RunBrowserFlow(t.Context(), perform)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}

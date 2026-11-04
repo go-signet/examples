@@ -159,15 +159,12 @@ func run(ctx context.Context, ui tui.Manager, cfg *AppConfig) int {
 		userErr    error
 		wg         sync.WaitGroup
 	)
-	wg.Add(2)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		verifyInfo, verifyErr = verifyToken(ctx, cfg, storage.AccessToken)
-	}()
-	go func() {
-		defer wg.Done()
+	})
+	wg.Go(func() {
 		userInfo, userErr = fetchUserInfo(ctx, cfg, storage.AccessToken)
-	}()
+	})
 	wg.Wait()
 
 	if verifyErr != nil {

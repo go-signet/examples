@@ -98,8 +98,8 @@ func handleDevicePollError(
 	pollInterval *time.Duration,
 	pollTicker *time.Ticker,
 ) pollErrorResult {
-	var oauthErr *oauth2.RetrieveError
-	if !errors.As(err, &oauthErr) {
+	oauthErr, matched := errors.AsType[*oauth2.RetrieveError](err)
+	if !matched {
 		return pollErrorResult{pollFail, fmt.Errorf("token exchange failed: %w", err)}
 	}
 

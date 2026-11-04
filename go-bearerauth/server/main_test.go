@@ -368,38 +368,35 @@ func TestHandlerSafelyReusesVerifierConcurrently(t *testing.T) {
 	failures := make(chan error, requestCount)
 	var group sync.WaitGroup
 	for i := range requestCount {
-		group.Add(1)
-		go func(index int) {
-			defer group.Done()
-
+		group.Go(func() {
 			req, err := http.NewRequest(
 				http.MethodGet,
 				server.URL+"/api/whoami",
 				nil,
 			)
 			if err != nil {
-				failures <- fmt.Errorf("request %d: create: %w", index, err)
+				failures <- fmt.Errorf("request %d: create: %w", i, err)
 				return
 			}
 			req.Header.Set(
 				"Authorization",
-				fmt.Sprintf("Bearer credential-%d", index),
+				fmt.Sprintf("Bearer credential-%d", i),
 			)
 
 			response, err := server.Client().Do(req)
 			if err != nil {
-				failures <- fmt.Errorf("request %d: send: %w", index, err)
+				failures <- fmt.Errorf("request %d: send: %w", i, err)
 				return
 			}
 			_ = response.Body.Close()
 			if response.StatusCode != http.StatusOK {
 				failures <- fmt.Errorf(
 					"request %d: status = %d, want 200",
-					index,
+					i,
 					response.StatusCode,
 				)
 			}
-		}(i)
+		})
 	}
 	group.Wait()
 	close(failures)
@@ -717,7 +714,7 @@ func TestHTTPServerBounds(t *testing.T) {
 }
 
 func TestServeShutsDownOnContextCancellation(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	cancel()
 
 	var logs bytes.Buffer

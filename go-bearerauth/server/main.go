@@ -321,8 +321,8 @@ func bearerCredential(header string) (string, bool) {
 func mapVerificationError(err error) (status int, challenge, category string) {
 	switch {
 	case errors.Is(err, bearerauth.ErrInsufficientScope):
-		var scopeErr *bearerauth.InsufficientScopeError
-		if !errors.As(err, &scopeErr) || scopeErr == nil ||
+		scopeErr, matched := errors.AsType[*bearerauth.InsufficientScopeError](err)
+		if !matched || scopeErr == nil ||
 			scopeErr.MissingScope == "" {
 			return http.StatusInternalServerError, "", "unexpected_error"
 		}

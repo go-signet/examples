@@ -28,7 +28,7 @@ type UserInfo struct {
 	PreferredUsername string `json:"preferred_username,omitempty"`
 	Picture           string `json:"picture,omitempty"`
 	// UpdatedAt is seconds since Unix epoch per OIDC Core §5.1.
-	UpdatedAt int64 `json:"updated_at,omitempty"`
+	UpdatedAt int64 `json:"updated_at,omitzero"`
 
 	// email scope
 	Email         string `json:"email,omitempty"`

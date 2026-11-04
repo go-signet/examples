@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -97,7 +96,7 @@ func TestRunResources(t *testing.T) {
 				cfg.apiURL = srv.URL + "/api/data"
 			}
 			var out bytes.Buffer
-			err := run(context.Background(), cfg, &out)
+			err := run(t.Context(), cfg, &out)
 			if tc.wantError == "" {
 				if err != nil {
 					t.Fatal(err)

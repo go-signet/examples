@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -48,7 +47,7 @@ func TestPrintTokenInfoAudience(t *testing.T) {
 			}
 			var out bytes.Buffer
 			printTokenInfo(
-				context.Background(),
+				t.Context(),
 				&out,
 				client,
 				&oauth.Token{AccessToken: "test-token"},

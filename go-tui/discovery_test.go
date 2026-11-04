@@ -78,7 +78,7 @@ func TestResolveEndpoints_Success(t *testing.T) {
 		DiscoveryTimeout: defaultDiscoveryTimeout,
 	}
 
-	resolveEndpoints(context.Background(), cfg)
+	resolveEndpoints(t.Context(), cfg)
 
 	if cfg.Endpoints.AuthorizeURL != srv.URL+"/auth" {
 		t.Errorf("AuthorizeURL = %q, want %q", cfg.Endpoints.AuthorizeURL, srv.URL+"/auth")
@@ -124,7 +124,7 @@ func TestResolveEndpoints_FallbackOn404(t *testing.T) {
 		DiscoveryTimeout: defaultDiscoveryTimeout,
 	}
 
-	resolveEndpoints(context.Background(), cfg)
+	resolveEndpoints(t.Context(), cfg)
 
 	// Should fall back to defaults
 	want := defaultEndpoints(srv.URL)
@@ -152,7 +152,7 @@ func TestResolveEndpoints_FallbackOnTimeout(t *testing.T) {
 		DiscoveryTimeout: defaultDiscoveryTimeout,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	ctx, cancel := context.WithTimeout(t.Context(), 500*time.Millisecond)
 	defer cancel()
 	resolveEndpoints(ctx, cfg)
 
@@ -174,7 +174,7 @@ func TestResolveEndpoints_FallbackOnNetworkError(t *testing.T) {
 		DiscoveryTimeout: defaultDiscoveryTimeout,
 	}
 
-	resolveEndpoints(context.Background(), cfg)
+	resolveEndpoints(t.Context(), cfg)
 
 	want := defaultEndpoints(cfg.ServerURL)
 	if cfg.Endpoints != want {
