@@ -10,7 +10,7 @@ require (
 require (
 	github.com/appleboy/go-httpretry v0.13.1 // indirect
 	github.com/coreos/go-oidc/v3 v3.21.0 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.7 // indirect
-	golang.org/x/oauth2 v0.37.0 // indirect
-	golang.org/x/sync v0.24.0 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.9 // indirect
+	golang.org/x/oauth2 v0.38.0 // indirect
+	golang.org/x/sync v0.25.0 // indirect
 )
