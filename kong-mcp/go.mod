@@ -4,8 +4,8 @@ go 1.26.10
 
 require (
 	github.com/Kong/go-pdk v0.11.2
-	github.com/MicahParks/jwkset v0.11.3
-	github.com/MicahParks/keyfunc/v3 v3.8.2
+	github.com/MicahParks/jwkset v0.11.4
+	github.com/MicahParks/keyfunc/v3 v3.9.2
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	golang.org/x/time v0.16.0
 )
